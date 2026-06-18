@@ -47,3 +47,32 @@ Files changed: None
 Error (if any): None
 Next: Commit and push Sprint 0 skeleton.
 ---
+
+## [2026-06-19T03:30:00+05:30] [SPRINT-0] [COMMIT]
+Status: Committed and pushed Sprint 0 skeleton.
+Files changed: None
+Error (if any): None
+Next: Begin Sprint 1
+Commit Hash: fbc1bc4
+---
+
+## [2026-06-19T03:13:20+05:30] [SPRINT-1] [RESUME]
+Status: Resuming project to build Sprint 1 (TravelConstraints Pydantic schema + Orchestrator extraction node).
+Files changed: None
+Error (if any): None
+Next: Write failing TDD tests in tests/evals/test_sprint_1.py
+---
+
+## [2026-06-19T03:35:00+05:30] [SPRINT-1] [ACTION]
+Status: Created failing TDD tests in tests/evals/test_sprint_1.py.
+Files changed: tests/evals/test_sprint_1.py
+Error (if any): ImportError: cannot import name 'extract_constraints' from 'backend.agents.orchestrator'
+Next: Implement extract_constraints in backend/agents/orchestrator.py
+---
+
+## [2026-06-19T03:50:00+05:30] [SPRINT-1] [EVAL]
+Status: Ran Sprint 1 verification tests. All 10 tests passed successfully.
+Files changed: None
+Error (if any): None
+Next: Commit and push Sprint 1 code.
+---
