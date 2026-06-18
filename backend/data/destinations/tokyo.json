@@ -1,0 +1,57 @@
+[
+  {
+    "id": "tokyo_sensoji",
+    "city": "Tokyo",
+    "name": "Senso-ji Temple",
+    "type": "temple",
+    "estimated_duration_hours": 2.0,
+    "crowd_level": "high",
+    "cost_band": "free",
+    "must_do": true,
+    "rationale": "Tokyo's oldest and most iconic temple."
+  },
+  {
+    "id": "tokyo_shinjuku_gyoen",
+    "city": "Tokyo",
+    "name": "Shinjuku Gyoen National Garden",
+    "type": "park",
+    "estimated_duration_hours": 1.5,
+    "crowd_level": "medium",
+    "cost_band": "low",
+    "must_do": true,
+    "rationale": "Stunning historical gardens offering cherry blossoms and greenhouses."
+  },
+  {
+    "id": "tokyo_meiji_jingu",
+    "city": "Tokyo",
+    "name": "Meiji Jingu Shrine",
+    "type": "shrine",
+    "estimated_duration_hours": 1.5,
+    "crowd_level": "medium",
+    "cost_band": "free",
+    "must_do": true,
+    "rationale": "Shinto shrine surrounded by a dense forest in the city center."
+  },
+  {
+    "id": "tokyo_tsukiji_outer_market",
+    "city": "Tokyo",
+    "name": "Tsukiji Outer Market",
+    "type": "food",
+    "estimated_duration_hours": 2.0,
+    "crowd_level": "high",
+    "cost_band": "medium",
+    "must_do": true,
+    "rationale": "World-famous street food stalls and fresh seafood vendors."
+  },
+  {
+    "id": "tokyo_teamlab_planets",
+    "city": "Tokyo",
+    "name": "teamLab Planets Tokyo",
+    "type": "museum",
+    "estimated_duration_hours": 2.0,
+    "crowd_level": "high",
+    "cost_band": "high",
+    "must_do": false,
+    "rationale": "Immersive digital art museum where visitors walk through water."
+  }
+]

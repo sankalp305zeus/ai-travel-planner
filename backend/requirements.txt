@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic>=2.0
+langchain-core
+langgraph
+pydantic-ai
+python-dotenv
+langfuse
+opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-http
+pytest
+pytest-asyncio
+httpx
