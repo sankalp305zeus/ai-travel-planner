@@ -1,0 +1,142 @@
+{
+  "tokyo": {
+    "hotel_budget": 60.0,
+    "hotel_mid": 120.0,
+    "hotel_luxury": 300.0,
+    "meal_avg": 25.0,
+    "activity_avg": 15.0
+  },
+  "kyoto": {
+    "hotel_budget": 50.0,
+    "hotel_mid": 100.0,
+    "hotel_luxury": 250.0,
+    "meal_avg": 20.0,
+    "activity_avg": 10.0
+  },
+  "paris": {
+    "hotel_budget": 80.0,
+    "hotel_mid": 160.0,
+    "hotel_luxury": 400.0,
+    "meal_avg": 35.0,
+    "activity_avg": 20.0
+  },
+  "london": {
+    "hotel_budget": 90.0,
+    "hotel_mid": 180.0,
+    "hotel_luxury": 450.0,
+    "meal_avg": 40.0,
+    "activity_avg": 25.0
+  },
+  "bangkok": {
+    "hotel_budget": 20.0,
+    "hotel_mid": 50.0,
+    "hotel_luxury": 150.0,
+    "meal_avg": 10.0,
+    "activity_avg": 8.0
+  },
+  "bali": {
+    "hotel_budget": 25.0,
+    "hotel_mid": 60.0,
+    "hotel_luxury": 200.0,
+    "meal_avg": 12.0,
+    "activity_avg": 10.0
+  },
+  "singapore": {
+    "hotel_budget": 70.0,
+    "hotel_mid": 150.0,
+    "hotel_luxury": 350.0,
+    "meal_avg": 30.0,
+    "activity_avg": 18.0
+  },
+  "rome": {
+    "hotel_budget": 60.0,
+    "hotel_mid": 130.0,
+    "hotel_luxury": 300.0,
+    "meal_avg": 28.0,
+    "activity_avg": 15.0
+  },
+  "delhi": {
+    "hotel_budget": 15.0,
+    "hotel_mid": 40.0,
+    "hotel_luxury": 120.0,
+    "meal_avg": 8.0,
+    "activity_avg": 5.0
+  },
+  "agra": {
+    "hotel_budget": 12.0,
+    "hotel_mid": 35.0,
+    "hotel_luxury": 100.0,
+    "meal_avg": 7.0,
+    "activity_avg": 12.0
+  },
+  "jaipur": {
+    "hotel_budget": 15.0,
+    "hotel_mid": 38.0,
+    "hotel_luxury": 110.0,
+    "meal_avg": 8.0,
+    "activity_avg": 6.0
+  },
+  "madrid": {
+    "hotel_budget": 55.0,
+    "hotel_mid": 110.0,
+    "hotel_luxury": 280.0,
+    "meal_avg": 25.0,
+    "activity_avg": 12.0
+  },
+  "barcelona": {
+    "hotel_budget": 65.0,
+    "hotel_mid": 130.0,
+    "hotel_luxury": 320.0,
+    "meal_avg": 28.0,
+    "activity_avg": 15.0
+  },
+  "new_york": {
+    "hotel_budget": 120.0,
+    "hotel_mid": 250.0,
+    "hotel_luxury": 600.0,
+    "meal_avg": 50.0,
+    "activity_avg": 30.0
+  },
+  "lima": {
+    "hotel_budget": 20.0,
+    "hotel_mid": 50.0,
+    "hotel_luxury": 160.0,
+    "meal_avg": 15.0,
+    "activity_avg": 8.0
+  },
+  "cusco": {
+    "hotel_budget": 18.0,
+    "hotel_mid": 45.0,
+    "hotel_luxury": 140.0,
+    "meal_avg": 12.0,
+    "activity_avg": 10.0
+  },
+  "sydney": {
+    "hotel_budget": 75.0,
+    "hotel_mid": 160.0,
+    "hotel_luxury": 380.0,
+    "meal_avg": 35.0,
+    "activity_avg": 20.0
+  },
+  "melbourne": {
+    "hotel_budget": 70.0,
+    "hotel_mid": 150.0,
+    "hotel_luxury": 360.0,
+    "meal_avg": 32.0,
+    "activity_avg": 18.0
+  },
+  "cairns": {
+    "hotel_budget": 50.0,
+    "hotel_mid": 110.0,
+    "hotel_luxury": 260.0,
+    "meal_avg": 25.0,
+    "activity_avg": 25.0
+  },
+  "osaka": {
+    "hotel_budget": 55.0,
+    "hotel_mid": 110.0,
+    "hotel_luxury": 280.0,
+    "meal_avg": 22.0,
+    "activity_avg": 12.0
+  }
+}

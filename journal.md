@@ -114,4 +114,35 @@ Next: Begin Sprint 3 (Logistics + Budget agents + MCP geo/pricing servers)
 Commit Hash: 4986ca0
 ---
 
+## [2026-06-19T15:36:31+05:30] [SPRINT-3] [RESUME]
+Status: Resuming project to build Sprint 3 (Logistics + Budget agents + MCP geo/pricing servers).
+Files changed: None
+Error (if any): None
+Next: Write failing TDD tests in tests/evals/test_sprint_3.py
+---
+
+## [2026-06-19T15:50:00+05:30] [SPRINT-3] [ACTION]
+Status: Implemented Logistics and Budget Agents, integrated with Geo/Pricing Servers, created local databases, and wrote TDD tests.
+Files changed: backend/agents/logistics.py, backend/agents/budget.py, backend/mcp_servers/geo_server.py, backend/mcp_servers/pricing_server.py, backend/data/logistics/transit_matrix.json, backend/data/pricing/fx_rates.json, backend/data/pricing/city_cost_bands.json, tests/evals/test_sprint_3.py
+Error (if any): None
+Next: Run pytest tests/evals/test_sprint_3.py
+---
+
+## [2026-06-19T15:52:00+05:30] [SPRINT-3] [EVAL]
+Status: Ran Sprint 3 verification tests. All 6 tests passed successfully. Full test suite (30 tests) passes.
+Files changed: None
+Error (if any): None
+Next: Commit and push Sprint 3 code.
+---
+
+## [2026-06-19T15:55:00+05:30] [SPRINT-3] [COMMIT]
+Status: Committed and pushed Sprint 3 changes.
+Files changed: None
+Error (if any): None
+Next: Begin Sprint 4 (LangGraph parallel execution + Orchestrator merge)
+Commit Hash: 2af0369
+---
+
+
+
 
