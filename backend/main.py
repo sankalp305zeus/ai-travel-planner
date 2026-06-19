@@ -66,6 +66,30 @@ async def add_trace_id_and_log(request: Request, call_next: Callable) -> Respons
     finally:
         TRACE_ID_VAR.reset(token)
 
+from pydantic import BaseModel
+from backend.graph import run_travel_planner_graph
+from fastapi import HTTPException
+
+class PlanRequest(BaseModel):
+    request: str
+
+@app.post("/api/plan")
+async def plan_trip(payload: PlanRequest):
+    try:
+        state = await run_travel_planner_graph(payload.request)
+        if state.get("errors"):
+            raise HTTPException(status_code=400, detail=state["errors"][0])
+        draft = state.get("draft_itinerary")
+        if not draft:
+            raise HTTPException(status_code=500, detail="Failed to construct itinerary draft.")
+        return draft
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in planning route: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "version": "0.1"}
+
