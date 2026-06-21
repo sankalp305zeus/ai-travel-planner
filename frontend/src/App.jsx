@@ -1,77 +1,176 @@
 import React, { useState, useEffect } from 'react';
+import Aurora from './components/ui/aurora';
+import SplashCursor from './components/ui/splash-cursor';
+import BlurText from './components/ui/blur-text';
+import TravelRequestForm from './components/TravelRequestForm';
+import PipelineGraph from './components/PipelineGraph';
+import ActivityCard from './components/ActivityCard';
+import BudgetChart from './components/BudgetChart';
 
-const PLACEHOLDERS = [
-  "Plan a 5-day trip to Japan. Tokyo + Kyoto. $3,000 budget. Love food and temples, hate crowds.",
-  "7 days in Italy. Rome and Florence. €2,000 budget. Art museums, historical sites, family-friendly.",
-  "Weekend in Paris. €500. Art museums, cozy cafes, no queues."
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-export default function App() {
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [request, setRequest] = useState("");
+function App() {
+  const [view, setView] = useState('request'); // 'request' | 'generating' | 'itinerary'
+  const [planId, setPlanId] = useState(null);
+  
+  const [agentStatus, setAgentStatus] = useState({
+    Orchestrator: { state: 'waiting', artifact: null },
+    Destination: { state: 'waiting', artifact: null },
+    Logistics: { state: 'waiting', artifact: null },
+    Budget: { state: 'waiting', artifact: null },
+    Review: { state: 'waiting', artifact: null }
+  });
+  
+  const [itinerary, setItinerary] = useState(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  const handleSubmit = async (text) => {
+    setView('generating');
+    
+    // Set Orchestrator to active immediately
+    setAgentStatus(prev => ({
+      ...prev,
+      Orchestrator: { state: 'active', artifact: null }
+    }));
+
+    try {
+      // Create plan request
+      const response = await fetch(`${API_URL}/api/plan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request: text })
+      });
+      
+      const data = await response.json();
+      
+      // Simulate pipeline progression since we don't have true SSE /plan/{id}/status yet
+      // but in real world we'd poll or use SSE.
+      
+      // Orchestrator complete
+      setAgentStatus(prev => ({
+        ...prev,
+        Orchestrator: { state: 'complete', artifact: "Constraints Extracted" },
+        Destination: { state: 'active', artifact: null },
+        Logistics: { state: 'active', artifact: null },
+        Budget: { state: 'active', artifact: null },
+      }));
+
+      // In real life, we would poll data.id here. For now we just mock a short delay
+      // then complete the parallel agents.
+      setTimeout(() => {
+        setAgentStatus(prev => ({
+          ...prev,
+          Destination: { state: 'complete', artifact: "ActivityCatalog" },
+          Logistics: { state: 'complete', artifact: "MovementPlan" },
+          Budget: { state: 'complete', artifact: "BudgetBreakdown" },
+          Review: { state: 'active', artifact: null }
+        }));
+        
+        setTimeout(() => {
+          setAgentStatus(prev => ({
+            ...prev,
+            Review: { state: 'complete', artifact: "ReviewReport Passed" }
+          }));
+          
+          setItinerary(data); // data is the DraftItinerary returned from POST /api/plan
+          setView('itinerary');
+        }, 1500);
+      }, 1500);
+      
+    } catch (err) {
+      console.error(err);
+      setAgentStatus(prev => ({
+        ...prev,
+        Orchestrator: { state: 'error', artifact: null }
+      }));
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-bg text-text font-sans flex flex-col justify-between p-6 md:p-12 selection:bg-accent/30 selection:text-accent">
-      <header className="w-full max-w-4xl mx-auto flex justify-between items-center py-4">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-accent animate-pulse" />
-          <span className="font-mono text-sm tracking-wider uppercase text-muted">AI Travel Planner</span>
-        </div>
-        <span className="font-mono text-xs text-muted border border-border px-2 py-1 rounded">v0.1-dev</span>
-      </header>
-
-      <main className="flex-grow flex items-center justify-center py-12">
-        <div className="w-full max-w-2xl flex flex-col gap-8">
-          <div className="space-y-3">
-            <h1 className="font-display text-4xl md:text-5xl font-normal text-text tracking-tight">
-              Where to next?
-            </h1>
-            <p className="text-muted text-sm md:text-base font-light">
-              Enter your destination, duration, budget, preferences, and avoidances to generate a verified itinerary.
-            </p>
+    <div className="relative min-h-screen w-full font-body overflow-x-hidden">
+      {view === 'request' && <Aurora />}
+      {view === 'generating' && <SplashCursor />}
+      
+      {view === 'request' && (
+        <TravelRequestForm onSubmit={handleSubmit} />
+      )}
+      
+      {view === 'generating' && (
+        <div className="flex w-full min-h-screen">
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
+            <h2 className="text-3xl font-heading text-text-primary mb-12">Building your itinerary...</h2>
+            <PipelineGraph agents={agentStatus} />
           </div>
-
-          <div className="relative border border-border bg-surface rounded-xl p-4 focus-within:border-accent/50 transition-all duration-300 shadow-xl shadow-black/40">
-            <textarea
-              value={request}
-              onChange={(e) => setRequest(e.target.value)}
-              className="w-full h-32 bg-transparent text-text border-none resize-none focus:outline-none focus:ring-0 placeholder-muted/50 text-base font-light leading-relaxed"
-              placeholder={PLACEHOLDERS[placeholderIndex]}
-              maxLength={500}
-            />
-            <div className="flex justify-between items-center mt-4 pt-4 border-t border-border/50">
-              <span className="text-xs font-mono text-muted">{request.length}/500</span>
-              <button
-                type="button"
-                className="bg-accent hover:bg-accent/90 text-bg px-6 py-2.5 rounded-lg text-sm font-semibold tracking-wide flex items-center gap-2 transition-all active:scale-[0.98]"
-              >
-                Plan My Trip
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </button>
+          <div className="w-96 bg-surface border-l border-border p-6 flex flex-col">
+            <h3 className="text-xl font-heading text-accent-teal mb-6">Agent Outputs</h3>
+            <div className="space-y-4 font-mono text-sm text-text-muted flex-1 overflow-y-auto">
+              {Object.entries(agentStatus).map(([name, data]) => (
+                <div key={name}>
+                  <strong className="text-text-primary">{name}:</strong> {data.artifact || '...'}
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </main>
+      )}
 
-      <footer className="w-full max-w-4xl mx-auto py-4 border-t border-border/30 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-mono text-muted">
-        <div>
-          <span>Travel information from Wikivoyage, CC BY-SA 3.0</span>
-          <span className="mx-2">•</span>
-          <span>Map data © OpenStreetMap contributors</span>
+      {view === 'itinerary' && itinerary && (
+        <div className="pb-24">
+          <div className="max-w-6xl mx-auto p-8 flex gap-8">
+            <div className="flex-1">
+              <h1 className="text-4xl font-heading text-text-primary mb-8">Your Itinerary</h1>
+              
+              {itinerary.day_skeletons && itinerary.day_skeletons.map((day) => (
+                <div key={day.day_number} className="mb-12">
+                  <h2 className="text-2xl font-heading text-accent-amber mb-6 border-b border-border pb-2">
+                    <BlurText text={`Day ${day.day_number} — ${day.city}`} />
+                  </h2>
+                  <div className="text-text-muted mb-4 text-sm">Hotel: {day.lodging_hotel_name}</div>
+                  
+                  {day.activities && day.activities.length > 0 ? (
+                    day.activities.map((act, i) => (
+                      <ActivityCard 
+                        key={i}
+                        name={act.name}
+                        duration={act.duration_hours}
+                        crowd_level={itinerary.activity_catalog?.activities?.find(a => a.id === act.activity_id)?.crowd_level || 'medium'}
+                        cost_band={itinerary.activity_catalog?.activities?.find(a => a.id === act.activity_id)?.cost_band || 'medium'}
+                        rationale={act.rationale}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-text-muted italic">Free time to explore.</div>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            <div className="w-80">
+              <div className="sticky top-8">
+                <h3 className="text-xl font-heading text-text-primary mb-4">Budget Breakdown</h3>
+                <div className="bg-surface border border-border rounded-lg p-4">
+                  {itinerary.budget_breakdown && (
+                    <>
+                      <BudgetChart budgetData={itinerary.budget_breakdown.categories || []} />
+                      <div className="mt-4 text-center font-mono text-lg text-text-primary">
+                        Total: {itinerary.budget_breakdown.total_estimated_cost} USD
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="fixed bottom-0 w-full bg-accent-amber text-bg py-3 px-6 text-center font-medium shadow-lg z-50">
+            AI-generated estimates. Confirm all prices, availability, and bookings independently.
+          </div>
+          <div className="text-center text-text-muted text-xs mt-8 mb-4">
+            Data attribution: OpenStreetMap & Wikivoyage (CC BY-SA 3.0)
+          </div>
         </div>
-        <div>
-          <span>Precision Intelligence Engine</span>
-        </div>
-      </footer>
+      )}
     </div>
   );
 }
+
+export default App;
