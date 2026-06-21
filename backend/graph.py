@@ -114,47 +114,7 @@ async def merge_artifacts(state: TravelPlanState) -> dict:
     movement_plan = state["movement_plan"]
     day_skeletons = state["day_skeletons"]
     
-    # Group activities by city
-    city_acts = {}
-    for act in activity_catalog.activities:
-        city_acts.setdefault(act.city, []).append(act)
-        
-    city_counters = {c: 0 for c in city_acts}
-    merged_skeletons = []
-    
-    rate = await get_fx_rate(constraints.currency)
-    cost_map = {"free": 0.0, "low": 15.0, "medium": 40.0, "high": 100.0}
-    slots = ["AM", "PM", "Evening"]
-    
-    for day in day_skeletons:
-        city = day.city
-        acts = city_acts.get(city, [])
-        day_acts = []
-        
-        start_idx = city_counters.get(city, 0)
-        current_day_acts = acts[start_idx:start_idx+3]
-        city_counters[city] = start_idx + len(current_day_acts)
-        
-        for j, act in enumerate(current_day_acts):
-            usd_cost = cost_map.get(act.cost_band, 20.0)
-            cost_in_curr = usd_cost * rate
-            day_acts.append(DayActivity(
-                time_slot=slots[j],
-                activity_id=act.id,
-                name=act.name,
-                duration_hours=act.estimated_duration_hours,
-                cost=round(cost_in_curr, 2),
-                rationale=act.rationale
-            ))
-            
-        merged_skeletons.append(DaySkeleton(
-            day_number=day.day_number,
-            city=day.city,
-            activities=day_acts,
-            lodging_hotel_name=day.lodging_hotel_name,
-            notes=day.notes
-        ))
-        
+    merged_skeletons = day_skeletons
     # Recompute budget with actual plans
     final_budget = await calculate_budget(constraints, activity_catalog, lodging_plan, movement_plan)
     

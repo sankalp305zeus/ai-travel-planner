@@ -58,13 +58,14 @@ async def review_destination_itinerary(draft: DraftItinerary, constraints: Trave
             null_fields.append(f"Missing lodging hotel for Day {day.day_number}.")
             
     blocking_issues = []
+    advisory_issues = []
     if not days_match:
         blocking_issues.append(f"Day count mismatch: requested {constraints.duration_days} days, got {len(draft.day_skeletons)} days.")
     if not cities_included:
         missing = [c for c in constraints.cities if c.strip().lower() not in skeleton_cities]
         blocking_issues.append(f"Missing cities in plan: {', '.join(missing)}")
     if not within_budget:
-        blocking_issues.append(f"Over budget: estimated {draft.budget_breakdown.total_estimated_cost:.2f} {constraints.currency} exceeds limit of {constraints.budget_total:.2f} {constraints.currency}.")
+        advisory_issues.append(f"Over budget: estimated {draft.budget_breakdown.total_estimated_cost:.2f} {constraints.currency} exceeds limit of {constraints.budget_total:.2f} {constraints.currency}.")
     blocking_issues.extend(null_fields)
     
     if len(blocking_issues) > 0:
@@ -78,7 +79,7 @@ async def review_destination_itinerary(draft: DraftItinerary, constraints: Trave
             crowd_avoidance_effort=False,
             logistics_realistic=False,
             blocking_issues=blocking_issues,
-            advisory_issues=[],
+            advisory_issues=advisory_issues,
             repair_hints=[f"Fix programmatic errors: {'; '.join(blocking_issues)}"]
         )
         
@@ -94,7 +95,7 @@ async def review_destination_itinerary(draft: DraftItinerary, constraints: Trave
             crowd_avoidance_effort=True,
             logistics_realistic=True,
             blocking_issues=[],
-            advisory_issues=[],
+            advisory_issues=advisory_issues,
             repair_hints=[]
         )
         

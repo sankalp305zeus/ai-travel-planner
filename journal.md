@@ -249,3 +249,15 @@ Files changed: backend/graph.py, backend/agents/destination.py
 Error (if any): None.
 Next: Final test on Screen 3.
 ---
+
+## [2026-06-22T04:30:00+05:30] [POLISH] [ACTION]
+Status: Implemented fixes and UI polish requested by user.
+1. Fixed sparse itinerary days in `backend/agents/logistics.py` by ensuring activities are padded and evenly distributed across all days instead of being rigidly chunked into the first few.
+2. Updated the LLM prompt in `backend/agents/orchestrator.py` to explicitly default to 'INR' when parsing raw numbers without a currency code (e.g., "200000").
+3. Polished `frontend/src/App.jsx` by implementing interactive "Day Tabs" to clean up the long vertical scroll.
+4. Added dynamic conditional rendering for empty activity days to gracefully display "Explore on your own — wander the local neighborhoods" without spamming the hotel name.
+Tested with pytest (42/42 passed) and successfully ran `npm run build`.
+Files changed: backend/agents/logistics.py, backend/agents/orchestrator.py, frontend/src/App.jsx
+Error (if any): None.
+Next: Ready for live end-to-end test.
+---

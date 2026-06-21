@@ -71,6 +71,21 @@ def mock_extract_constraints(raw_input: str) -> TravelConstraints:
                 hard_requirements=[],
                 soft_preferences=[]
             )
+    elif "amsterdam" in text:
+        return TravelConstraints(
+            destination_region="Europe",
+            cities=["Amsterdam"],
+            duration_days=5,
+            budget_total=200000.0,
+            currency="INR",
+            requested_currency="INR",
+            budget_in_inr=200000.0,
+            budget_in_usd=2400.0,
+            preferences=["fun things to do"],
+            avoidances=["crowd"],
+            hard_requirements=[],
+            soft_preferences=[]
+        )
     elif "paris" in text:
         return TravelConstraints(
             destination_region="France",
