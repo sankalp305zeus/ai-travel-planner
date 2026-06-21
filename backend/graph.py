@@ -1,11 +1,12 @@
 from typing import TypedDict, List, Optional
 from langgraph.graph import StateGraph, START, END
-from backend.schemas import TravelConstraints, ActivityCatalog, LodgingPlan, MovementPlan, DaySkeleton, BudgetBreakdown, DraftItinerary, AgentResult, DayActivity
+from backend.schemas import TravelConstraints, ActivityCatalog, LodgingPlan, MovementPlan, DaySkeleton, BudgetBreakdown, DraftItinerary, AgentResult, DayActivity, ReviewReport
 from backend.agents.orchestrator import extract_constraints
 from backend.agents.destination import research_destination
 from backend.agents.logistics import plan_logistics
 from backend.agents.budget import calculate_budget
 from backend.mcp_servers.pricing_server import get_fx_rate
+from backend.agents.review import review_destination_itinerary
 
 class TravelPlanState(TypedDict):
     raw_request: str
@@ -15,13 +16,18 @@ class TravelPlanState(TypedDict):
     movement_plan: Optional[MovementPlan]
     day_skeletons: Optional[List[DaySkeleton]]
     budget_breakdown: Optional[BudgetBreakdown]
+    review_report: Optional[ReviewReport]
     errors: List[str]
     draft_itinerary: Optional[DraftItinerary]
+    error_code: Optional[str]
+    error_detail: Optional[str]
+    success: bool
+    repair_count: int
 
 async def node_extract_constraints(state: TravelPlanState) -> dict:
     res = await extract_constraints(state["raw_request"])
     if isinstance(res, AgentResult):
-        return {"errors": [res.error_detail or "Failed to extract constraints"]}
+        return {"errors": [res.error_detail or "Failed to extract constraints"], "success": False, "error_code": res.error_code}
     return {"constraints": res}
 
 async def node_destination_agent(state: TravelPlanState) -> dict:
@@ -143,6 +149,56 @@ async def merge_artifacts(state: TravelPlanState) -> dict:
         "day_skeletons": merged_skeletons
     }
 
+async def node_review_agent(state: TravelPlanState) -> dict:
+    draft = state["draft_itinerary"]
+    constraints = state["constraints"]
+    if not draft or not constraints:
+        report = ReviewReport(
+            passed=False, days_match=False, cities_included=False, within_budget=False,
+            preference_alignment_score=0.0, crowd_avoidance_effort=False, logistics_realistic=False,
+            blocking_issues=["No draft or constraints found"], advisory_issues=[], repair_hints=[]
+        )
+    else:
+        report = await review_destination_itinerary(draft, constraints)
+        
+    return {"review_report": report}
+
+def node_increment_repair(state: TravelPlanState) -> dict:
+    count = state.get("repair_count", 0) + 1
+    return {"repair_count": count}
+
+def node_repair_exhausted(state: TravelPlanState) -> dict:
+    return {
+        "error_code": "REPAIR_EXHAUSTED",
+        "success": False,
+        "error_detail": "Max repair retries reached."
+    }
+
+def route_repair(state: TravelPlanState) -> str:
+    report = state.get("review_report")
+    if not report:
+        return "merge_artifacts"
+        
+    if report.passed:
+        return END
+        
+    if state.get("repair_count", 0) >= 3:
+        return "repair_exhausted"
+        
+    return "increment_repair"
+
+def route_to_agent(state: TravelPlanState) -> str:
+    report = state.get("review_report")
+    if not report:
+        return "destination_agent"
+        
+    if not report.days_match or not report.cities_included or not report.logistics_realistic:
+        return "logistics_agent"
+    elif not report.within_budget:
+        return "budget_agent"
+    else:
+        return "destination_agent"
+
 # Build LangGraph Workflow
 workflow = StateGraph(TravelPlanState)
 
@@ -151,6 +207,9 @@ workflow.add_node("destination_agent", node_destination_agent)
 workflow.add_node("logistics_agent", node_logistics_agent)
 workflow.add_node("budget_agent", node_budget_agent)
 workflow.add_node("merge_artifacts", merge_artifacts)
+workflow.add_node("review_agent", node_review_agent)
+workflow.add_node("increment_repair", node_increment_repair)
+workflow.add_node("repair_exhausted", node_repair_exhausted)
 
 workflow.add_edge(START, "extract_constraints")
 
@@ -164,7 +223,31 @@ workflow.add_edge("destination_agent", "merge_artifacts")
 workflow.add_edge("logistics_agent", "merge_artifacts")
 workflow.add_edge("budget_agent", "merge_artifacts")
 
-workflow.add_edge("merge_artifacts", END)
+workflow.add_edge("merge_artifacts", "review_agent")
+
+# Conditional edge from review_agent
+workflow.add_conditional_edges(
+    "review_agent",
+    route_repair,
+    {
+        END: END,
+        "repair_exhausted": "repair_exhausted",
+        "increment_repair": "increment_repair"
+    }
+)
+
+# Conditional edge from increment_repair to route back to failing agent
+workflow.add_conditional_edges(
+    "increment_repair",
+    route_to_agent,
+    {
+        "logistics_agent": "logistics_agent",
+        "budget_agent": "budget_agent",
+        "destination_agent": "destination_agent"
+    }
+)
+
+workflow.add_edge("repair_exhausted", END)
 
 app_graph = workflow.compile()
 
@@ -178,7 +261,12 @@ async def run_travel_planner_graph(raw_request: str) -> dict:
         "movement_plan": None,
         "day_skeletons": None,
         "budget_breakdown": None,
+        "review_report": None,
         "errors": [],
-        "draft_itinerary": None
+        "draft_itinerary": None,
+        "error_code": None,
+        "error_detail": None,
+        "success": True,
+        "repair_count": 0
     }
     return await app_graph.ainvoke(initial_state)
