@@ -183,4 +183,10 @@ Status: Resuming project after disk space resolution. Fixed Sprint 5 repair loop
 Files changed: tests/evals/test_sprint_5.py
 Error (if any): None
 Next: Commit and push Sprint 5 code, then proceed to Sprint 6.
+
+## [2026-06-22T01:36:20+05:30] [SPRINT-6] [ACTION]
+Status: Implemented OpenTelemetry tracing to Langfuse and wired real data sources (Wikivoyage, Nominatim, Open-Meteo). Verified API endpoints and traces successfully.
+Files changed: backend/instrumentation.py, backend/main.py, backend/mcp_servers/search_server.py, backend/mcp_servers/geo_server.py, backend/mcp_servers/weather_server.py, .env
+Error (if any): None
+Next: Begin Sprint 7.
 ---
