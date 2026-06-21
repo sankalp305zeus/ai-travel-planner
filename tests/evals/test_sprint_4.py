@@ -85,7 +85,21 @@ def test_budget_swaps_reflected_in_draft():
         soft_preferences=[]
     )
     with patch("backend.graph.extract_constraints", return_value=mock_constraints):
-        response = client.post("/api/plan", json={"request": "5 days Japan, Tokyo + Kyoto, $100, love food, hate crowds"})
+        from backend.schemas import ReviewReport
+        mock_review = ReviewReport(
+            passed=True, 
+            blocking_issues=[], 
+            repair_hints=[],
+            days_match=True,
+            cities_included=True,
+            within_budget=True,
+            preference_alignment_score=True,
+            crowd_avoidance_effort=True,
+            logistics_realistic=True,
+            advisory_issues=[]
+        )
+        with patch("backend.graph.review_destination_itinerary", return_value=mock_review):
+            response = client.post("/api/plan", json={"request": "5 days Japan, Tokyo + Kyoto, $100, love food, hate crowds"})
         assert response.status_code == 200
         data = response.json()
         draft = DraftItinerary(**data)
