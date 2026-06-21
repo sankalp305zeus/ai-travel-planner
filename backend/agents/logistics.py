@@ -117,13 +117,24 @@ async def plan_logistics(constraints: TravelConstraints, activities: List[Activi
         acts_for_city = city_activities.get(city, [])
         slots = ["AM", "PM", "Evening"]
         
+        # Pad activities if we have fewer than `nights` activities
+        if acts_for_city and len(acts_for_city) < nights:
+            import math
+            factor = math.ceil(nights / len(acts_for_city))
+            acts_for_city = (acts_for_city * factor)[:nights]
+            
+        # Distribute evenly
+        acts_distribution = [[] for _ in range(nights)]
+        for i, act in enumerate(acts_for_city):
+            idx = i % nights
+            if len(acts_distribution[idx]) < 3:
+                acts_distribution[idx].append(act)
+        
         for n in range(nights):
             day_acts = []
             hotel_name = next((l.hotel_name for l in lodgings if l.city == city), f"{city} Park Hotel")
             
-            # Take up to 3 activities for this day
-            start_index = n * 3
-            current_day_acts = acts_for_city[start_index:start_index+3]
+            current_day_acts = acts_distribution[n]
             
             for j, act in enumerate(current_day_acts):
                 cost_map = {"free": 0.0, "low": 15.0, "medium": 40.0, "high": 100.0}

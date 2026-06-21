@@ -22,6 +22,7 @@ function App() {
   });
   
   const [itinerary, setItinerary] = useState(null);
+  const [activeDayIndex, setActiveDayIndex] = useState(0);
 
   const fetchItinerary = async (id) => {
     try {
@@ -121,29 +122,46 @@ function App() {
             <div className="flex-1">
               <h1 className="text-4xl font-heading text-text-primary mb-8">Your Itinerary</h1>
               
-              {itinerary.day_skeletons && itinerary.day_skeletons.map((day) => (
-                <div key={day.day_number} className="mb-12">
-                  <h2 className="text-2xl font-heading text-accent-amber mb-6 border-b border-border pb-2">
-                    <BlurText text={`Day ${day.day_number} — ${day.city}`} />
-                  </h2>
-                  <div className="text-text-muted mb-4 text-sm">Hotel: {day.lodging_hotel_name}</div>
-                  
-                  {day.activities && day.activities.length > 0 ? (
-                    day.activities.map((act, i) => (
-                      <ActivityCard 
-                        key={i}
-                        name={act.name}
-                        duration={act.duration_hours}
-                        crowd_level={itinerary.activity_catalog?.activities?.find(a => a.id === act.activity_id)?.crowd_level || 'medium'}
-                        cost_band={itinerary.activity_catalog?.activities?.find(a => a.id === act.activity_id)?.cost_band || 'medium'}
-                        rationale={act.rationale}
-                      />
-                    ))
-                  ) : (
-                    <div className="text-text-muted italic">Free time to explore.</div>
-                  )}
-                </div>
-              ))}
+              <div className="flex gap-4 mb-8 overflow-x-auto pb-2 border-b border-border">
+                {itinerary.day_skeletons && itinerary.day_skeletons.map((day, idx) => (
+                  <button
+                    key={day.day_number}
+                    onClick={() => setActiveDayIndex(idx)}
+                    className={`pb-2 px-2 font-heading whitespace-nowrap transition-colors ${activeDayIndex === idx ? 'text-accent-amber border-b-2 border-accent-amber' : 'text-[#888580] hover:text-text-primary'}`}
+                  >
+                    Day {day.day_number}
+                  </button>
+                ))}
+              </div>
+              
+              {itinerary.day_skeletons && itinerary.day_skeletons[activeDayIndex] && (() => {
+                const day = itinerary.day_skeletons[activeDayIndex];
+                return (
+                  <div key={day.day_number} className="mb-12 transition-opacity duration-200 opacity-100">
+                    <h2 className="text-2xl font-heading text-accent-amber mb-6 border-b border-border pb-2">
+                      <BlurText text={`Day ${day.day_number} — ${day.city}`} />
+                    </h2>
+                    <div className="text-text-muted mb-4 text-sm">Hotel: {day.lodging_hotel_name}</div>
+                    
+                    {day.activities && day.activities.length > 0 ? (
+                      day.activities.map((act, i) => (
+                        <ActivityCard 
+                          key={i}
+                          name={act.name}
+                          duration={act.duration_hours}
+                          crowd_level={itinerary.activity_catalog?.activities?.find(a => a.id === act.activity_id)?.crowd_level || 'medium'}
+                          cost_band={itinerary.activity_catalog?.activities?.find(a => a.id === act.activity_id)?.cost_band || 'medium'}
+                          rationale={act.rationale}
+                        />
+                      ))
+                    ) : (
+                      <div className="bg-surface border border-border rounded-lg p-6 my-4 text-[#888580] italic">
+                        Explore on your own — wander the local neighborhoods
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
             
             <div className="w-80">
