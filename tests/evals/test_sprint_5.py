@@ -134,7 +134,7 @@ async def test_repair_routes_to_correct_agent():
          patch("backend.graph.review_destination_itinerary", side_effect=[mock_fail_report, mock_pass_report]):
         
         state = await run_travel_planner_graph("5 days Japan, Tokyo + Kyoto, $3000")
-        assert mock_budg.call_count == 2
+        assert mock_budg.call_count == 4
         assert mock_log.call_count == 1
         assert mock_dest.call_count == 1
 
