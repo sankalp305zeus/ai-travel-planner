@@ -90,25 +90,50 @@ function App() {
 
   return (
     <div className="relative min-h-screen w-full font-body overflow-x-hidden">
-      {view === 'request' && <Aurora />}
-      {view === 'generating' && <SplashCursor />}
+      {/* Liquid Background */}
+      <div className="liquid-bg">
+        <div className="liquid-blob-1"></div>
+        <div className="liquid-blob-2"></div>
+      </div>
+      
+      {/* Global Branding */}
+      <div className="absolute top-6 left-8 z-50">
+        <div className="font-heading font-extrabold text-[24px] bg-gradient-to-r from-cyan to-coral bg-clip-text text-transparent tracking-tight">
+          NAVIGO
+        </div>
+        <div className="flex items-center gap-2 mt-[2px]">
+          <div className="w-6 h-px bg-cyan"></div>
+          <div className="font-body text-[11px] text-muted lowercase tracking-[0.15em]">
+            ai travel intelligence
+          </div>
+        </div>
+      </div>
       
       {view === 'request' && (
         <TravelRequestForm onSubmit={handleSubmit} />
       )}
       
       {view === 'generating' && (
-        <div className="flex w-full min-h-screen">
+        <div className="flex w-full min-h-screen animate-in fade-in slide-in-from-bottom-2 duration-400">
           <div className="flex-1 flex flex-col items-center justify-center p-8">
-            <h2 className="text-3xl font-heading text-text-primary mb-12">Building your itinerary...</h2>
+            <h2 className="text-[42px] font-heading font-extrabold bg-gradient-to-br from-white to-cyan bg-clip-text text-transparent mb-2">
+              Crafting your journey...
+            </h2>
+            <p className="text-[16px] text-muted font-body mb-12">
+              Five specialized agents are working in parallel
+            </p>
             <PipelineGraph agents={agentStatus} />
           </div>
-          <div className="w-96 bg-surface border-l border-border p-6 flex flex-col">
-            <h3 className="text-xl font-heading text-accent-teal mb-6">Agent Outputs</h3>
-            <div className="space-y-4 font-mono text-sm text-text-muted flex-1 overflow-y-auto">
+          <div className="w-[340px] bg-surface backdrop-blur-md border-l border-border fixed right-0 h-full p-6 flex flex-col z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-3 mb-8">
+              <h3 className="text-[18px] font-heading text-text font-bold">Live Updates</h3>
+              <div className="w-2 h-2 rounded-full bg-cyan animate-pulse shadow-glow-cyan"></div>
+            </div>
+            <div className="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar">
               {Object.entries(agentStatus).map(([name, data]) => (
-                <div key={name}>
-                  <strong className="text-text-primary">{name}:</strong> {data.artifact || '...'}
+                <div key={name} className="animate-in fade-in slide-in-from-right-4 duration-500 border-l-[2px] border-transparent transition-colors">
+                  <div className="text-coral font-heading text-[14px] font-semibold uppercase tracking-wider mb-1">{name}</div>
+                  <div className="font-mono text-[12px] text-muted leading-[1.5]">{data.artifact || 'Awaiting signal...'}</div>
                 </div>
               ))}
             </div>
@@ -117,19 +142,30 @@ function App() {
       )}
 
       {view === 'itinerary' && itinerary && (
-        <div className="pb-24">
-          <div className="max-w-6xl mx-auto p-8 flex gap-8">
+        <div className="pb-24 animate-in fade-in slide-in-from-bottom-4 duration-400">
+          <div className="max-w-6xl mx-auto p-8 flex gap-10 pt-32">
             <div className="flex-1">
-              <h1 className="text-4xl font-heading text-text-primary mb-8">Your Itinerary</h1>
+              <div className="mb-10">
+                <h1 className="text-[64px] font-heading font-extrabold bg-gradient-to-br from-white to-cyan bg-clip-text text-transparent leading-tight mb-2">
+                  {constraints?.duration_days || 5} Days in {constraints?.cities?.[0] || 'Destination'}
+                </h1>
+                <div className="text-[20px] font-body text-coral font-medium">
+                  {itinerary.budget_breakdown?.destination_currency_code === 'INR' ? '₹' : (itinerary.budget_breakdown?.destination_currency_code === 'USD' ? '$' : '')}
+                  {itinerary.budget_breakdown?.total_destination_currency || '---'} total budget
+                </div>
+              </div>
               
-              <div className="flex gap-4 mb-8 overflow-x-auto pb-2 border-b border-border">
+              <div className="flex gap-2 mb-8 overflow-x-auto pb-0 border-b border-[rgba(122,139,166,0.2)] sticky top-0 bg-canvas/80 backdrop-blur z-30 pt-4">
                 {itinerary.day_skeletons && itinerary.day_skeletons.map((day, idx) => (
                   <button
                     key={day.day_number}
                     onClick={() => setActiveDayIndex(idx)}
-                    className={`pb-2 px-2 font-heading whitespace-nowrap transition-colors ${activeDayIndex === idx ? 'text-accent-amber border-b-2 border-accent-amber' : 'text-[#888580] hover:text-text-primary'}`}
+                    className={`relative pb-3 px-4 font-body text-[15px] whitespace-nowrap transition-colors duration-300 ${activeDayIndex === idx ? 'text-cyan font-medium' : 'text-muted hover:text-text'}`}
                   >
                     Day {day.day_number}
+                    {activeDayIndex === idx && (
+                      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-cyan to-coral animate-in fade-in zoom-in duration-300"></div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -137,11 +173,14 @@ function App() {
               {itinerary.day_skeletons && itinerary.day_skeletons[activeDayIndex] && (() => {
                 const day = itinerary.day_skeletons[activeDayIndex];
                 return (
-                  <div key={day.day_number} className="mb-12 transition-opacity duration-200 opacity-100">
-                    <h2 className="text-2xl font-heading text-accent-amber mb-6 border-b border-border pb-2">
-                      <BlurText text={`Day ${day.day_number} — ${day.city}`} />
+                  <div key={day.day_number} className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-400">
+                    <h2 className="text-[28px] font-heading font-bold text-text mb-2">
+                      {day.city}
                     </h2>
-                    <div className="text-text-muted mb-4 text-sm">Hotel: {day.lodging_hotel_name}</div>
+                    <div className="text-muted mb-8 text-[14px] flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-cyan opacity-50"></div>
+                      Lodging: <span className="text-text">{day.lodging_hotel_name}</span>
+                    </div>
                     
                     {day.activities && day.activities.length > 0 ? (
                       day.activities.map((act, i) => (
@@ -155,7 +194,7 @@ function App() {
                         />
                       ))
                     ) : (
-                      <div className="bg-surface border border-border rounded-lg p-6 my-4 text-[#888580] italic">
+                      <div className="bg-surface backdrop-blur-md border border-[rgba(122,139,166,0.2)] rounded-[18px] p-8 text-center text-muted italic font-body">
                         Explore on your own — wander the local neighborhoods
                       </div>
                     )}
@@ -164,10 +203,14 @@ function App() {
               })()}
             </div>
             
-            <div className="w-80">
-              <div className="sticky top-8">
-                <h3 className="text-xl font-heading text-text-primary mb-4">Budget Breakdown</h3>
-                <div className="bg-surface border border-border rounded-lg p-4">
+            <div className="w-[320px]">
+              <div className="sticky top-32">
+                <div className="text-[12px] uppercase tracking-wider text-muted font-body font-semibold mb-2">Total Budget</div>
+                <div className="text-[36px] font-heading text-cyan font-bold mb-6">
+                  {itinerary.budget_breakdown?.destination_currency_code === 'INR' ? '₹' : (itinerary.budget_breakdown?.destination_currency_code === 'USD' ? '$' : '')}
+                  {itinerary.budget_breakdown?.total_destination_currency || '---'}
+                </div>
+                <div className="bg-surface backdrop-blur-md border border-border-strong rounded-[24px] p-6 shadow-glow-cyan/20">
                   {itinerary.budget_breakdown && (
                     <BudgetChart breakdown={itinerary.budget_breakdown} />
                   )}
@@ -176,11 +219,12 @@ function App() {
             </div>
           </div>
           
-          <div className="fixed bottom-0 w-full bg-accent-amber text-bg py-3 px-6 text-center font-medium shadow-lg z-50">
-            AI-generated estimates. Confirm all prices, availability, and bookings independently.
+          <div className="text-center text-muted text-[11px] mb-2 font-body">
+            Data: Wikivoyage CC BY-SA 3.0 &middot; OpenStreetMap
           </div>
-          <div className="text-center text-text-muted text-xs mt-8 mb-4">
-            Data attribution: OpenStreetMap & Wikivoyage (CC BY-SA 3.0)
+          <div className="fixed bottom-0 w-full h-[40px] bg-surface backdrop-blur-xl border-t border-border flex items-center justify-center z-50">
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-cyan to-coral opacity-50"></div>
+            <span className="text-[13px] font-body text-muted">AI-generated estimates. Verify all bookings independently.</span>
           </div>
         </div>
       )}

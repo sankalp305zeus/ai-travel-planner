@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const BudgetChart = ({ breakdown }) => {
-  const COLORS = ['#E8C547', '#4ECDC4', '#F0EDE8', '#888580'];
+  const COLORS = ['#00E5FF', '#FF3366', '#FFFFFF', '#7A8BA6'];
   
   // Options: requested (default), USD, INR, destination
   const [currencyMode, setCurrencyMode] = useState('requested');
@@ -69,25 +69,26 @@ const BudgetChart = ({ breakdown }) => {
         <select 
           value={currencyMode}
           onChange={(e) => setCurrencyMode(e.target.value)}
-          className="bg-bg border border-border text-text-primary text-sm rounded p-1 outline-none font-mono"
+          className="bg-surface border border-border-strong text-text text-sm rounded-lg p-1.5 outline-none font-mono hover:shadow-glow-cyan transition-shadow"
         >
           {uniqueOptions.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
       </div>
-      <div className="h-56 w-full relative">
+      <div className="h-40 w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={budgetData}
               cx="50%"
               cy="50%"
-              innerRadius={50}
-              outerRadius={70}
+              innerRadius={45}
+              outerRadius={60}
               paddingAngle={5}
               dataKey="amount"
               nameKey="category"
+              stroke="none"
             >
               {budgetData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -95,14 +96,22 @@ const BudgetChart = ({ breakdown }) => {
             </Pie>
             <Tooltip 
               formatter={(value) => `${getSymbol(currencyMode)}${value}`}
-              contentStyle={{ backgroundColor: '#1A1A1A', borderColor: '#2A2A2A', color: '#F0EDE8' }}
-              itemStyle={{ color: '#F0EDE8' }}
+              contentStyle={{ backgroundColor: 'rgba(14,23,41,0.8)', borderColor: 'rgba(0,229,255,0.4)', color: '#E8F0FF', borderRadius: '8px' }}
+              itemStyle={{ color: '#E8F0FF' }}
             />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-4 text-center font-mono text-lg text-text-primary">
-        Total: {getSymbol(currencyMode)}{totalDisplay}
+      <div className="mt-4 flex flex-col gap-2">
+        {budgetData.map((entry, index) => (
+          <div key={index} className="flex items-center justify-between font-body text-[13px] text-text">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+              <span className="capitalize">{entry.category.replace('_', ' ')}</span>
+            </div>
+            <span className="font-mono text-muted">{getSymbol(currencyMode)}{entry.amount}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

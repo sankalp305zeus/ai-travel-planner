@@ -4,6 +4,96 @@
 
 @layer base {
   body {
-    @apply bg-bg text-text-primary antialiased;
+    @apply bg-canvas text-text antialiased overflow-x-hidden;
+    scroll-behavior: smooth;
   }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00E5FF, #FF3366);
+  border-radius: 4px;
+}
+
+/* Liquid Background Animation */
+.liquid-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background-color: #040914;
+}
+
+.liquid-blob-1 {
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 70vw;
+  height: 70vw;
+  background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, rgba(0,229,255,0) 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: blob-drift-1 20s ease-in-out infinite alternate;
+}
+
+.liquid-blob-2 {
+  position: absolute;
+  bottom: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(255,51,102,0.1) 0%, rgba(255,51,102,0) 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: blob-drift-2 25s ease-in-out infinite alternate;
+}
+
+@keyframes blob-drift-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(10%, 20%) scale(1.1); }
+}
+
+@keyframes blob-drift-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-15%, -10%) scale(1.2); }
+}
+
+/* Flow line animation */
+@keyframes flow-line {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -20; }
+}
+
+.flow-path-active {
+  animation: flow-line 1s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0,229,255,0.6));
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1.05); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1.05); }
+}
+
+.agent-pulse {
+  animation: pulse-ring 1.2s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.agent-shake {
+  animation: shake 0.4s ease-in-out infinite;
 }
