@@ -4,11 +4,17 @@ import logging
 import json
 from contextvars import ContextVar
 from typing import Callable
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 # Trigger configuration loading and validation
 from backend import config
+from backend.instrumentation import setup_telemetry
+
+setup_telemetry()
+
+from backend.graph import run_travel_planner_graph
 
 # ContextVar to store trace_id for the current request context
 TRACE_ID_VAR: ContextVar[str] = ContextVar("trace_id", default="")

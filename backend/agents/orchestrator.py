@@ -9,10 +9,12 @@ from backend import config
 # In mock/test environments, we skip real model instantiation to avoid validation or connection errors.
 if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
     # Using 'gemini-2.5-flash' as recommended for Google AI Studio
-    model = GoogleModel('gemini-2.5-flash', api_key=config.GEMINI_API_KEY)
+    import os
+    os.environ["GEMINI_API_KEY"] = config.GEMINI_API_KEY
+    model = GoogleModel('gemini-2.5-flash')
     agent = Agent(
         model,
-        result_type=TravelConstraints,
+        output_type=TravelConstraints,
         system_prompt=(
             "You are an expert travel planner orchestrator.\n"
             "Your task is to extract TravelConstraints from a raw user request.\n"

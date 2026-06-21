@@ -10,7 +10,7 @@ if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
     model = GoogleModel('gemini-2.5-flash', api_key=config.GEMINI_API_KEY)
     agent = Agent(
         model,
-        result_type=ReviewReport,
+        output_type=ReviewReport,
         system_prompt=(
             "You are an expert travel critic.\n"
             "Analyze the provided DraftItinerary against the TravelConstraints.\n"
