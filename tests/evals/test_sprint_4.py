@@ -29,7 +29,16 @@ async def test_parallel_under_15s():
 def test_draft_has_correct_day_count():
     response = client.post("/api/plan", json={"request": "3 days Rome, $1500, history and food"})
     assert response.status_code == 200
-    data = response.json()
+    plan_id = response.json()["plan_id"]
+    
+    import time
+    for _ in range(30):
+        res = client.get(f"/api/plan/{plan_id}/status")
+        if res.json()["status"] == "completed":
+            break
+        time.sleep(0.5)
+        
+    data = client.get(f"/api/plan/{plan_id}").json()
     draft = DraftItinerary(**data)
     assert draft.constraints.duration_days == 3
     assert len(draft.day_skeletons) == 3
@@ -37,7 +46,16 @@ def test_draft_has_correct_day_count():
 def test_all_activity_ids_resolve():
     response = client.post("/api/plan", json={"request": "5 days Japan, Tokyo + Kyoto, $3000, love food and temples, hate crowds"})
     assert response.status_code == 200
-    data = response.json()
+    plan_id = response.json()["plan_id"]
+    
+    import time
+    for _ in range(30):
+        res = client.get(f"/api/plan/{plan_id}/status")
+        if res.json()["status"] == "completed":
+            break
+        time.sleep(0.5)
+        
+    data = client.get(f"/api/plan/{plan_id}").json()
     draft = DraftItinerary(**data)
     
     catalog_ids = {act.id for act in draft.activity_catalog.activities}
@@ -105,7 +123,16 @@ def test_budget_swaps_reflected_in_draft():
         with patch("backend.graph.review_destination_itinerary", return_value=mock_review):
             response = client.post("/api/plan", json={"request": "5 days Japan, Tokyo + Kyoto, $100, love food, hate crowds"})
         assert response.status_code == 200
-        data = response.json()
+        plan_id = response.json()["plan_id"]
+        
+        import time
+        for _ in range(30):
+            res = client.get(f"/api/plan/{plan_id}/status")
+            if res.json()["status"] == "completed":
+                break
+            time.sleep(0.5)
+            
+        data = client.get(f"/api/plan/{plan_id}").json()
         draft = DraftItinerary(**data)
         assert draft.budget_breakdown.within_budget is False
         assert len(draft.budget_breakdown.suggested_swaps) > 0

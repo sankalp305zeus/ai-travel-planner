@@ -8,7 +8,16 @@ from backend.agents.budget import calculate_budget
 from backend.mcp_servers.pricing_server import get_fx_rate
 from backend.agents.review import review_destination_itinerary
 
+import asyncio
+
+active_streams: dict[str, asyncio.Queue] = {}
+
+async def emit_event(plan_id: str, event: dict):
+    if plan_id in active_streams:
+        await active_streams[plan_id].put(event)
+
 class TravelPlanState(TypedDict):
+    plan_id: Optional[str]
     raw_request: str
     constraints: Optional[TravelConstraints]
     activity_catalog: Optional[ActivityCatalog]
@@ -25,21 +34,31 @@ class TravelPlanState(TypedDict):
     repair_count: int
 
 async def node_extract_constraints(state: TravelPlanState) -> dict:
+    plan_id = state.get("plan_id")
+    if plan_id: await emit_event(plan_id, {"agent": "Orchestrator", "state": "active", "artifact": None})
     res = await extract_constraints(state["raw_request"])
     if isinstance(res, AgentResult):
+        if plan_id: await emit_event(plan_id, {"agent": "Orchestrator", "state": "error", "artifact": res.error_detail})
         return {"errors": [res.error_detail or "Failed to extract constraints"], "success": False, "error_code": res.error_code}
+    if plan_id: await emit_event(plan_id, {"agent": "Orchestrator", "state": "complete", "artifact": "Constraints Extracted"})
     return {"constraints": res}
 
 async def node_destination_agent(state: TravelPlanState) -> dict:
+    plan_id = state.get("plan_id")
+    if plan_id: await emit_event(plan_id, {"agent": "Destination", "state": "active", "artifact": None})
     constraints = state["constraints"]
     if not constraints:
         return {"errors": ["No constraints found for destination research"]}
     res = await research_destination(constraints)
     if isinstance(res, AgentResult):
+        if plan_id: await emit_event(plan_id, {"agent": "Destination", "state": "error", "artifact": res.error_detail})
         return {"errors": [res.error_detail or "Destination research failed"]}
+    if plan_id: await emit_event(plan_id, {"agent": "Destination", "state": "complete", "artifact": f"{len(res.activities)} activities found"})
     return {"activity_catalog": res}
 
 async def node_logistics_agent(state: TravelPlanState) -> dict:
+    plan_id = state.get("plan_id")
+    if plan_id: await emit_event(plan_id, {"agent": "Logistics", "state": "active", "artifact": None})
     constraints = state["constraints"]
     if not constraints:
         return {"errors": ["No constraints found for logistics"]}
@@ -64,6 +83,8 @@ async def node_logistics_agent(state: TravelPlanState) -> dict:
             ))
             
     lodging_plan, movement_plan, day_skeletons = await plan_logistics(constraints, mock_activities)
+    total_nights = sum(l.nights for l in lodging_plan.lodgings) if lodging_plan else 0
+    if plan_id: await emit_event(plan_id, {"agent": "Logistics", "state": "complete", "artifact": f"{total_nights} nights planned"})
     return {
         "lodging_plan": lodging_plan,
         "movement_plan": movement_plan,
@@ -71,6 +92,8 @@ async def node_logistics_agent(state: TravelPlanState) -> dict:
     }
 
 async def node_budget_agent(state: TravelPlanState) -> dict:
+    plan_id = state.get("plan_id")
+    if plan_id: await emit_event(plan_id, {"agent": "Budget", "state": "active", "artifact": None})
     constraints = state["constraints"]
     if not constraints:
         return {"errors": ["No constraints found for budget"]}
@@ -80,6 +103,7 @@ async def node_budget_agent(state: TravelPlanState) -> dict:
     empty_movement = MovementPlan(movements=[], total_movement_cost=0.0)
     
     budget_breakdown = await calculate_budget(constraints, empty_catalog, empty_lodging, empty_movement)
+    if plan_id: await emit_event(plan_id, {"agent": "Budget", "state": "complete", "artifact": f"{budget_breakdown.total_requested_currency} {budget_breakdown.destination_currency_code}"})
     return {"budget_breakdown": budget_breakdown}
 
 async def merge_artifacts(state: TravelPlanState) -> dict:
@@ -150,6 +174,8 @@ async def merge_artifacts(state: TravelPlanState) -> dict:
     }
 
 async def node_review_agent(state: TravelPlanState) -> dict:
+    plan_id = state.get("plan_id")
+    if plan_id: await emit_event(plan_id, {"agent": "Review", "state": "active", "artifact": None})
     draft = state["draft_itinerary"]
     constraints = state["constraints"]
     if not draft or not constraints:
@@ -161,6 +187,7 @@ async def node_review_agent(state: TravelPlanState) -> dict:
     else:
         report = await review_destination_itinerary(draft, constraints)
         
+    if plan_id: await emit_event(plan_id, {"agent": "Review", "state": "complete", "artifact": "PASSED" if report.passed else "FAILED - Routing for repair"})
     return {"review_report": report}
 
 def node_increment_repair(state: TravelPlanState) -> dict:
@@ -251,9 +278,10 @@ workflow.add_edge("repair_exhausted", END)
 
 app_graph = workflow.compile()
 
-async def run_travel_planner_graph(raw_request: str) -> dict:
+async def run_travel_planner_graph(raw_request: str, plan_id: str = None) -> dict:
     """Runs the LangGraph orchestration flow and returns the state."""
     initial_state = {
+        "plan_id": plan_id,
         "raw_request": raw_request,
         "constraints": None,
         "activity_catalog": None,

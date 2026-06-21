@@ -73,31 +73,89 @@ async def add_trace_id_and_log(request: Request, call_next: Callable) -> Respons
         TRACE_ID_VAR.reset(token)
 
 from backend.schemas import AgentResult
+import asyncio
+from fastapi import BackgroundTasks
+from fastapi.responses import StreamingResponse
 
 class PlanRequest(BaseModel):
     request: str
 
-@app.post("/api/plan")
-async def plan_trip(payload: PlanRequest):
-    try:
-        state = await run_travel_planner_graph(payload.request)
-        if not state.get("success", True) or state.get("error_code"):
-            return AgentResult(
-                success=False,
-                error_code=state.get("error_code"),
-                error_detail=state.get("error_detail") or (state.get("errors")[0] if state.get("errors") else "Planning failed"),
-                partial_data=state.get("draft_itinerary")
-            )
-        draft = state.get("draft_itinerary")
-        if not draft:
-            raise HTTPException(status_code=500, detail="Failed to construct itinerary draft.")
-        return draft
+plan_results = {}
 
-    except HTTPException:
-        raise
+async def run_graph_bg(request: str, plan_id: str):
+    from backend.graph import run_travel_planner_graph, active_streams, emit_event
+    try:
+        active_streams[plan_id] = asyncio.Queue()
+        state = await run_travel_planner_graph(request, plan_id=plan_id)
+        plan_results[plan_id] = state
+        
+        status = "completed" if state.get("success", True) else "error"
+        await emit_event(plan_id, {"status": status, "plan_id": plan_id})
+        await active_streams[plan_id].put(None) # Sentinel
     except Exception as e:
-        logger.error(f"Error in planning route: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error in bg task: {e}")
+        await emit_event(plan_id, {"status": "error", "plan_id": plan_id})
+        if plan_id in active_streams:
+            await active_streams[plan_id].put(None)
+
+@app.post("/api/plan")
+async def plan_trip(payload: PlanRequest, background_tasks: BackgroundTasks):
+    plan_id = str(uuid.uuid4())
+    background_tasks.add_task(run_graph_bg, payload.request, plan_id)
+    return {"plan_id": plan_id}
+
+@app.get("/api/plan/{plan_id}/stream")
+async def stream_plan(plan_id: str):
+    from backend.graph import active_streams
+    async def event_generator():
+        queue = active_streams.get(plan_id)
+        if not queue:
+            await asyncio.sleep(0.5)
+            queue = active_streams.get(plan_id)
+            if not queue:
+                yield f'data: {{"status": "error", "error": "Not found"}}\n\n'
+                return
+        try:
+            while True:
+                event = await queue.get()
+                if event is None:
+                    break
+                yield f"data: {json.dumps(event)}\n\n"
+        finally:
+            if plan_id in active_streams:
+                del active_streams[plan_id]
+                
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    )
+
+@app.get("/api/plan/{plan_id}/status")
+async def get_plan_status(plan_id: str):
+    if plan_id in plan_results:
+        state = plan_results[plan_id]
+        if not state.get("success", True):
+            return {"status": "error", "error_detail": state.get("error_detail")}
+        return {"status": "completed"}
+    return {"status": "processing"}
+
+@app.get("/api/plan/{plan_id}")
+async def get_plan(plan_id: str):
+    state = plan_results.get(plan_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Not found")
+    if not state.get("success", True) or state.get("error_code"):
+        return AgentResult(
+            success=False,
+            error_code=state.get("error_code"),
+            error_detail=state.get("error_detail") or (state.get("errors")[0] if state.get("errors") else "Planning failed"),
+            partial_data=state.get("draft_itinerary")
+        )
+    draft = state.get("draft_itinerary")
+    if not draft:
+        raise HTTPException(status_code=500, detail="Failed to construct itinerary draft.")
+    return draft
 
 @app.get("/health")
 def health_check():

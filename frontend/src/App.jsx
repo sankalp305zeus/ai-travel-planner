@@ -23,17 +23,29 @@ function App() {
   
   const [itinerary, setItinerary] = useState(null);
 
+  const fetchItinerary = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/api/plan/${id}`);
+      const data = await res.json();
+      setItinerary(data);
+      setView('itinerary');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleSubmit = async (text) => {
     setView('generating');
     
-    // Set Orchestrator to active immediately
-    setAgentStatus(prev => ({
-      ...prev,
-      Orchestrator: { state: 'active', artifact: null }
-    }));
+    setAgentStatus({
+      Orchestrator: { state: 'waiting', artifact: null },
+      Destination: { state: 'waiting', artifact: null },
+      Logistics: { state: 'waiting', artifact: null },
+      Budget: { state: 'waiting', artifact: null },
+      Review: { state: 'waiting', artifact: null }
+    });
 
     try {
-      // Create plan request
       const response = await fetch(`${API_URL}/api/plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,40 +53,30 @@ function App() {
       });
       
       const data = await response.json();
+      const newPlanId = data.plan_id;
+      setPlanId(newPlanId);
       
-      // Simulate pipeline progression since we don't have true SSE /plan/{id}/status yet
-      // but in real world we'd poll or use SSE.
-      
-      // Orchestrator complete
-      setAgentStatus(prev => ({
-        ...prev,
-        Orchestrator: { state: 'complete', artifact: "Constraints Extracted" },
-        Destination: { state: 'active', artifact: null },
-        Logistics: { state: 'active', artifact: null },
-        Budget: { state: 'active', artifact: null },
-      }));
-
-      // In real life, we would poll data.id here. For now we just mock a short delay
-      // then complete the parallel agents.
-      setTimeout(() => {
-        setAgentStatus(prev => ({
-          ...prev,
-          Destination: { state: 'complete', artifact: "ActivityCatalog" },
-          Logistics: { state: 'complete', artifact: "MovementPlan" },
-          Budget: { state: 'complete', artifact: "BudgetBreakdown" },
-          Review: { state: 'active', artifact: null }
-        }));
-        
-        setTimeout(() => {
+      const es = new EventSource(`${API_URL}/api/plan/${newPlanId}/stream`);
+      es.onmessage = (e) => {
+        const payload = JSON.parse(e.data);
+        if (payload.agent) {
           setAgentStatus(prev => ({
             ...prev,
-            Review: { state: 'complete', artifact: "ReviewReport Passed" }
+            [payload.agent]: { state: payload.state, artifact: payload.artifact }
           }));
-          
-          setItinerary(data); // data is the DraftItinerary returned from POST /api/plan
-          setView('itinerary');
-        }, 1500);
-      }, 1500);
+        }
+        if (payload.status === 'completed') {
+          es.close();
+          fetchItinerary(newPlanId);
+        }
+        if (payload.status === 'error') {
+          es.close();
+          setAgentStatus(prev => ({
+            ...prev,
+            Orchestrator: { state: 'error', artifact: 'Planning failed' }
+          }));
+        }
+      };
       
     } catch (err) {
       console.error(err);

@@ -203,3 +203,10 @@ Files changed: PRODUCT_QUALITY_SIGNOFF.md, tests/evals/test_sprint_4.py
 Error (if any): None.
 Next: Prepare for Sprint 9 (SSE Streaming) or demo showcase.
 ---
+
+## [2026-06-22T02:55:00+05:30] [ENHANCEMENT] [ACTION]
+Status: Implemented multi-currency feature. All budgets default to INR or extract the user-requested currency dynamically. We calculate real-time exchange rates internally from USD to INR, requested_currency, and the destination country's local currency. Updated the React frontend `BudgetChart` with a dynamic switcher to view allocations across all these currencies.
+Files changed: backend/schemas.py, backend/agents/orchestrator.py, backend/data/pricing/destination_currencies.json, backend/mcp_servers/pricing_server.py, backend/agents/budget.py, frontend/src/components/BudgetChart.jsx, frontend/src/components/TravelRequestForm.jsx, frontend/src/App.jsx, tests/evals/*.py
+Error (if any): None.
+Next: Sprint 9 (Streaming/SSE).
+---
