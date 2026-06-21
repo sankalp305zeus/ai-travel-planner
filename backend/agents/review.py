@@ -7,7 +7,8 @@ from backend import config
 
 # Initialize Pydantic AI agent for Layer 2 qualitative checks
 if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
-    model = GoogleModel('gemini-2.5-flash', api_key=config.GEMINI_API_KEY)
+    os.environ["GEMINI_API_KEY"] = config.GEMINI_API_KEY
+    model = GoogleModel('gemini-2.5-flash')
     agent = Agent(
         model,
         output_type=ReviewReport,

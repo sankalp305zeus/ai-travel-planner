@@ -6,10 +6,12 @@ from backend import config
 
 # Initialize model
 if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
-    model = GoogleModel('gemini-2.5-flash', api_key=config.GEMINI_API_KEY)
+    import os
+    os.environ["GEMINI_API_KEY"] = config.GEMINI_API_KEY
+    model = GoogleModel('gemini-2.5-flash')
     agent = Agent(
         model,
-        result_type=ActivityCatalog,
+        output_type=ActivityCatalog,
         system_prompt=(
             "You are an expert travel planner destination research agent.\n"
             "Your task is to compile a comprehensive ActivityCatalog for the cities specified in the TravelConstraints.\n"

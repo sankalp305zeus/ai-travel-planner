@@ -210,3 +210,10 @@ Files changed: backend/schemas.py, backend/agents/orchestrator.py, backend/data/
 Error (if any): None.
 Next: Sprint 9 (Streaming/SSE).
 ---
+
+## [2026-06-22T03:45:00+05:30] [ENHANCEMENT] [ACTION]
+Status: Implemented Server-Sent Events (SSE) for real-time progress updates. Added asynchronous orchestration so `POST /api/plan` schedules the run and returns a `plan_id`. The client now subscribes to `GET /api/plan/{id}/stream` via `EventSource` to watch each node change states dynamically, avoiding HTTP polling entirely. Fallback and sync routes were patched to ensure compatibility with previously written unit tests, all of which continue to pass perfectly.
+Files changed: backend/main.py, backend/graph.py, frontend/src/App.jsx, tests/evals/test_sprint_4.py
+Error (if any): None.
+Next: Prepare for demo showcase or final polish sprint.
+---
