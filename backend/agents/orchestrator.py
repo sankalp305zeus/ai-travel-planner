@@ -21,7 +21,8 @@ if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
             "Please normalize the following in the extracted constraints:\n"
             "- Duration: Normalize 'weekend' to 2, 'week' or '1 week' to 7, 'fortnight' to 14, and other vague durations accordingly.\n"
             "- Cities: Extract the specific cities listed. Normalize the names to Title Case (e.g. 'Tokyo', 'Paris').\n"
-            "- Currency: Determine the budget currency (e.g. 'USD', 'EUR', 'GBP'). Use the currency symbol if provided.\n"
+            "- Currency: Determine the budget currency (e.g. '100000 INR' or '₹100000' -> INR, '$1000' -> USD, '£800' -> GBP, '€1000' -> EUR). If no currency is mentioned, default to 'INR'.\n"
+            "  Set this detected currency to `requested_currency`. Also set `currency` to match for backwards compatibility.\n"
             "- Preferences: Extract user preferences (e.g. 'food', 'temples', 'museums').\n"
             "- Avoidances: Extract what the user wants to avoid (e.g. 'crowds', 'luxury hotels', 'cars').\n"
             "Return ONLY the validated JSON matching the TravelConstraints schema."
@@ -35,17 +36,36 @@ def mock_extract_constraints(raw_input: str) -> TravelConstraints:
     text = raw_input.lower()
     
     if "japan" in text:
-        return TravelConstraints(
-            destination_region="Japan",
-            cities=["Tokyo", "Kyoto"],
-            duration_days=5,
-            budget_total=3000.0,
-            currency="USD",
-            preferences=["food", "temples"],
-            avoidances=["crowds"],
-            hard_requirements=[],
-            soft_preferences=[]
-        )
+        if "3,00,000" in text or "300000" in text:
+            return TravelConstraints(
+                destination_region="Japan",
+                cities=["Tokyo", "Kyoto"],
+                duration_days=5,
+                budget_total=300000.0,
+                currency="INR",
+                requested_currency="INR",
+                budget_in_inr=300000.0,
+                budget_in_usd=3600.0,
+                preferences=["food", "temples"],
+                avoidances=["crowds"],
+                hard_requirements=[],
+                soft_preferences=[]
+            )
+        else:
+            return TravelConstraints(
+                destination_region="Japan",
+                cities=["Tokyo", "Kyoto"],
+                duration_days=5,
+                budget_total=3000.0,
+                currency="USD",
+                requested_currency="USD",
+                budget_in_inr=250000.0,
+                budget_in_usd=3000.0,
+                preferences=["food", "temples"],
+                avoidances=["crowds"],
+                hard_requirements=[],
+                soft_preferences=[]
+            )
     elif "paris" in text:
         return TravelConstraints(
             destination_region="France",
@@ -77,6 +97,9 @@ def mock_extract_constraints(raw_input: str) -> TravelConstraints:
             duration_days=3,
             budget_total=1500.0,
             currency="USD",
+            requested_currency="USD",
+            budget_in_inr=125000.0,
+            budget_in_usd=1500.0,
             preferences=["history", "food"],
             avoidances=["tourist traps"],
             hard_requirements=[],
@@ -190,6 +213,12 @@ async def extract_constraints(raw_input: str) -> Union[TravelConstraints, AgentR
         # Normalize outputs in code to be failure-proof
         # Normalize: city names to Title Case
         constraints.cities = [c.strip().title() for c in constraints.cities if c.strip()]
+
+        from backend.mcp_servers.pricing_server import fx_convert
+        
+        req_cur = (constraints.requested_currency or "INR").upper()
+        constraints.budget_in_usd = await fx_convert(constraints.budget_total, req_cur, "USD")
+        constraints.budget_in_inr = await fx_convert(constraints.budget_total, req_cur, "INR")
 
         # Code-level backup normalization for common terms
         text = raw_input.lower()

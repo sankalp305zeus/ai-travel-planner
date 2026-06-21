@@ -149,12 +149,7 @@ function App() {
                 <h3 className="text-xl font-heading text-text-primary mb-4">Budget Breakdown</h3>
                 <div className="bg-surface border border-border rounded-lg p-4">
                   {itinerary.budget_breakdown && (
-                    <>
-                      <BudgetChart budgetData={itinerary.budget_breakdown.categories || []} />
-                      <div className="mt-4 text-center font-mono text-lg text-text-primary">
-                        Total: {itinerary.budget_breakdown.total_estimated_cost} USD
-                      </div>
-                    </>
+                    <BudgetChart breakdown={itinerary.budget_breakdown} />
                   )}
                 </div>
               </div>

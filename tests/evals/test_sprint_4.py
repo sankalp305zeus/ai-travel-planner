@@ -55,7 +55,8 @@ async def test_no_llm_calls_in_merge():
     state: TravelPlanState = {
         "raw_request": "3 days Rome",
         "constraints": TravelConstraints(
-            destination_region="Italy", cities=["Rome"], duration_days=3, budget_total=1500.0, currency="USD",
+            destination_region="Italy", cities=["Rome"], duration_days=3, budget_total=1500.0,
+            currency="USD", requested_currency="USD", budget_in_usd=1500.0, budget_in_inr=125000.0,
             preferences=[], avoidances=[], hard_requirements=[], soft_preferences=[]
         ),
         "activity_catalog": ActivityCatalog(activities=[], crowd_level_summary="", cost_band_summary="", rationale=""),
@@ -77,8 +78,11 @@ def test_budget_swaps_reflected_in_draft():
         destination_region="Japan",
         cities=["Tokyo", "Kyoto"],
         duration_days=5,
-        budget_total=100.0,  # very low budget
+        budget_total=100.0,
         currency="USD",
+        requested_currency="USD",
+        budget_in_usd=100.0,
+        budget_in_inr=8000.0,
         preferences=["food"],
         avoidances=[],
         hard_requirements=[],

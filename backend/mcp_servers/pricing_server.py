@@ -64,6 +64,29 @@ def get_city_costs(city: str) -> Dict[str, float]:
     }
 
 # Keep original helper functions for backwards compatibility
+def get_destination_currency(city: str) -> str:
+    cleaned = city.lower().strip().replace(" ", "_")
+    path = Path(__file__).resolve().parent.parent / "data" / "pricing" / "destination_currencies.json"
+    if path.exists():
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+            if cleaned in data:
+                return data[cleaned]
+        except Exception:
+            pass
+    return "USD"
+
+async def fx_convert(amount: float, from_currency: str, to_currency: str) -> float:
+    from_currency = from_currency.upper().strip()
+    to_currency = to_currency.upper().strip()
+    if from_currency == to_currency:
+        return amount
+    from_rate = await get_fx_rate(from_currency)
+    to_rate = await get_fx_rate(to_currency)
+    amount_in_usd = amount / from_rate
+    return amount_in_usd * to_rate
+
 def get_mock_budget_breakdown(
     lodging_cost: float,
     movement_cost: float,

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ShinyText from './ui/shiny-text';
 
 const placeholders = [
-  "5 days Japan. Tokyo + Kyoto. $3,000. Love food and temples, hate crowds.",
-  "Weekend in Paris. €800. Art museums, no queues.",
-  "2 weeks Southeast Asia. Bangkok + Bali. $4,000. Beaches and food."
+  "5 days Japan, ₹3,00,000 budget, food and temples, hate crowds",
+  "Weekend Paris, ₹80,000, art museums, no queues",
+  "2 weeks Southeast Asia, $2000, beaches and food"
 ];
 
 const TravelRequestForm = ({ onSubmit }) => {

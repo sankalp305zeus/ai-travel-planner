@@ -7,6 +7,9 @@ class TravelConstraints(BaseModel):
     duration_days: int
     budget_total: float
     currency: str = "USD"
+    requested_currency: str = "INR"
+    budget_in_inr: float = 0.0
+    budget_in_usd: float = 0.0
     preferences: List[str]        # ["food", "temples"]
     avoidances: List[str]         # ["crowds"]
     hard_requirements: List[str]  # non-negotiable
@@ -76,6 +79,11 @@ class BudgetCategory(BaseModel):
 class BudgetBreakdown(BaseModel):
     categories: List[BudgetCategory]
     total_estimated_cost: float
+    total_inr: float = 0.0
+    total_requested_currency: float = 0.0
+    total_destination_currency: float = 0.0
+    destination_currency_code: str = "USD"
+    exchange_rates_used: dict = {}
     within_budget: bool
     violations: List[str]
     suggested_swaps: List[str]
