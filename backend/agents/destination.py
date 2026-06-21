@@ -113,7 +113,7 @@ async def research_destination(constraints: TravelConstraints) -> Union[Activity
             f"Soft Preferences: {', '.join(constraints.soft_preferences)}"
         )
         result = await agent.run(prompt)
-        return result.data
+        return result.output
     except Exception as e:
         return AgentResult(
             success=False,

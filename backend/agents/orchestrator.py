@@ -208,7 +208,7 @@ async def extract_constraints(raw_input: str) -> Union[TravelConstraints, AgentR
     try:
         # Run real model
         result = await agent.run(raw_input)
-        constraints = result.data
+        constraints = result.output
 
         # Normalize outputs in code to be failure-proof
         # Normalize: city names to Title Case

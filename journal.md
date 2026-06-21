@@ -217,3 +217,10 @@ Files changed: backend/main.py, backend/graph.py, frontend/src/App.jsx, tests/ev
 Error (if any): None.
 Next: Prepare for demo showcase or final polish sprint.
 ---
+
+## [2026-06-22T03:55:00+05:30] [BUGFIX] [ACTION]
+Status: Fixed `GoogleModel` initialization in `backend/agents/destination.py` and `backend/agents/review.py` by relying on standard environment variable setting (`os.environ["GEMINI_API_KEY"] = config.GEMINI_API_KEY`) and omitting the deprecated `api_key` param. Additionally, fixed a `pydantic_ai` keyword argument bug by changing `result_type` to `output_type` in `destination.py`. Verified that the backend successfully starts up with `uvicorn`.
+Files changed: backend/agents/destination.py, backend/agents/review.py
+Error (if any): None.
+Next: Prepare for demo showcase.
+---

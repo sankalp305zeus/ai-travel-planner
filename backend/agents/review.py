@@ -104,7 +104,7 @@ async def review_destination_itinerary(draft: DraftItinerary, constraints: Trave
             f"Draft Itinerary:\n{draft.model_dump_json(indent=2)}"
         )
         res = await agent.run(prompt)
-        report = res.data
+        report = res.output
         
         # Force correct programmatic variables
         report.days_match = True
