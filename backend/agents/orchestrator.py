@@ -1,17 +1,17 @@
 from typing import Union, List
 from pydantic_ai import Agent
-from pydantic_ai.models.google import GoogleModel
+from pydantic_ai.providers.groq import GroqProvider
+from pydantic_ai.models.groq import GroqModel
 from backend.schemas import TravelConstraints, AgentResult
 from backend import config
 
 # Initialize Google Model for Pydantic AI
-# In standard environments, we initialize it using GoogleModel
+# In standard environments, we initialize it using GroqModel
 # In mock/test environments, we skip real model instantiation to avoid validation or connection errors.
-if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
-    # Using 'gemini-2.5-flash' as recommended for Google AI Studio
-    import os
-    os.environ["GEMINI_API_KEY"] = config.GEMINI_API_KEY
-    model = GoogleModel('gemini-2.5-flash')
+if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
+    # Using 'llama-3.3-70b-versatile' as recommended
+    provider = GroqProvider(api_key=config.GROQ_API_KEY)
+    model = GroqModel('llama-3.3-70b-versatile', provider=provider)
     agent = Agent(
         model,
         output_type=TravelConstraints,
@@ -195,7 +195,7 @@ async def extract_constraints(raw_input: str) -> Union[TravelConstraints, AgentR
     Extracts TravelConstraints from raw user string request.
     If no API key is provided or is a mock key, it falls back to deterministic mock logic for evaluation tests.
     """
-    if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == "mock_key":
+    if not config.GROQ_API_KEY or config.GROQ_API_KEY == "mock_key":
         try:
             return mock_extract_constraints(raw_input)
         except Exception as e:

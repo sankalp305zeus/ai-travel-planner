@@ -1,14 +1,15 @@
 import os
 from typing import List, Optional
 from pydantic_ai import Agent
-from pydantic_ai.models.google import GoogleModel
+from pydantic_ai.providers.groq import GroqProvider
+from pydantic_ai.models.groq import GroqModel
 from backend.schemas import TravelConstraints, DraftItinerary, ReviewReport, AgentResult
 from backend import config
 
 # Initialize Pydantic AI agent for Layer 2 qualitative checks
-if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
-    os.environ["GEMINI_API_KEY"] = config.GEMINI_API_KEY
-    model = GoogleModel('gemini-2.5-flash')
+if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
+    provider = GroqProvider(api_key=config.GROQ_API_KEY)
+    model = GroqModel('llama-3.3-70b-versatile', provider=provider)
     agent = Agent(
         model,
         output_type=ReviewReport,
@@ -82,7 +83,7 @@ async def review_destination_itinerary(draft: DraftItinerary, constraints: Trave
         )
         
     # 2. Layer 2 LLM checks (only run if Layer 1 passes)
-    if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == "mock_key":
+    if not config.GROQ_API_KEY or config.GROQ_API_KEY == "mock_key":
         # Mock Layer 2 fallback
         return ReviewReport(
             passed=True,

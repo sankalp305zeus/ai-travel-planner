@@ -224,3 +224,11 @@ Files changed: backend/agents/destination.py, backend/agents/review.py
 Error (if any): None.
 Next: Prepare for demo showcase.
 ---
+
+## [2026-06-22T04:05:00+05:30] [BUGFIX] [ACTION]
+Status: Fixed "Planning failed" error on the frontend caused by the Orchestrator failing to extract constraints.
+The root cause was that newer versions of `pydantic-ai` expose the `AgentRunResult` payload under `.output` rather than `.data`. Replaced `result.data` with `result.output` in `orchestrator.py`, `destination.py`, and `review.py`. Tested using an async script and successfully extracted a `TravelConstraints` object using the real Gemini model.
+Files changed: backend/agents/orchestrator.py, backend/agents/destination.py, backend/agents/review.py
+Error (if any): None.
+Next: Continue polishing.
+---

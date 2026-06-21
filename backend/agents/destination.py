@@ -1,14 +1,14 @@
 from typing import Union
 from pydantic_ai import Agent
-from pydantic_ai.models.google import GoogleModel
+from pydantic_ai.providers.groq import GroqProvider
+from pydantic_ai.models.groq import GroqModel
 from backend.schemas import TravelConstraints, ActivityCatalog, AgentResult, ActivityItem
 from backend import config
 
 # Initialize model
-if config.GEMINI_API_KEY and config.GEMINI_API_KEY != "mock_key":
-    import os
-    os.environ["GEMINI_API_KEY"] = config.GEMINI_API_KEY
-    model = GoogleModel('gemini-2.5-flash')
+if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
+    provider = GroqProvider(api_key=config.GROQ_API_KEY)
+    model = GroqModel('llama-3.3-70b-versatile', provider=provider)
     agent = Agent(
         model,
         output_type=ActivityCatalog,
@@ -88,9 +88,9 @@ def mock_research_destination(constraints: TravelConstraints) -> ActivityCatalog
 async def research_destination(constraints: TravelConstraints) -> Union[ActivityCatalog, AgentResult]:
     """
     Researches destination details and returns an ActivityCatalog.
-    Falls back to mock implementation if GEMINI_API_KEY is not set or equals "mock_key".
+    Falls back to mock implementation if GROQ_API_KEY is not set or equals "mock_key".
     """
-    if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == "mock_key":
+    if not config.GROQ_API_KEY or config.GROQ_API_KEY == "mock_key":
         try:
             return mock_research_destination(constraints)
         except Exception as e:
