@@ -37,7 +37,7 @@ async def node_extract_constraints(state: TravelPlanState) -> dict:
     plan_id = state.get("plan_id")
     if plan_id: await emit_event(plan_id, {"agent": "Orchestrator", "state": "active", "artifact": None})
     res = await extract_constraints(state["raw_request"])
-    if isinstance(res, AgentResult):
+    if isinstance(res, AgentResult) and not res.success:
         if plan_id: await emit_event(plan_id, {"agent": "Orchestrator", "state": "error", "artifact": res.error_detail})
         return {"errors": [res.error_detail or "Failed to extract constraints"], "success": False, "error_code": res.error_code}
     if plan_id: await emit_event(plan_id, {"agent": "Orchestrator", "state": "complete", "artifact": "Constraints Extracted"})

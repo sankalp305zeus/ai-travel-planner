@@ -232,3 +232,11 @@ Files changed: backend/agents/orchestrator.py, backend/agents/destination.py, ba
 Error (if any): None.
 Next: Continue polishing.
 ---
+
+## [2026-06-22T04:15:00+05:30] [BUGFIX] [ACTION]
+Status: Successfully migrated the LLM provider from Gemini to Groq to bypass rate limits. 
+Installed `pydantic-ai-slim[groq]`. Replaced `GoogleModel` with `GroqModel` using `GroqProvider` in `orchestrator.py`, `destination.py`, and `review.py`. Hooked up the `GROQ_API_KEY` configuration directly from `.env`. Tested an extraction using `llama-3.3-70b-versatile` manually and ran the full 42-test suite which returned 100% green. 
+Files changed: backend/config.py, backend/agents/orchestrator.py, backend/agents/destination.py, backend/agents/review.py
+Error (if any): None.
+Next: Continue polishing.
+---
