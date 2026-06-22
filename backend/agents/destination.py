@@ -13,36 +13,13 @@ if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
         model,
         output_type=ActivityCatalog,
         system_prompt=(
-            "You are an expert travel planner destination research agent.\n"
-            "Your task is to compile a comprehensive ActivityCatalog for the cities specified in the TravelConstraints.\n"
-            "For each city, provide a list of activities, estimated duration, cost band, crowd level, and must-do status.\n"
-            "Take into account the user's preferences, avoidances, hard requirements, and soft preferences.\n"
-            "Provide a crowd level summary, cost band summary, and a cohesive rationale for the selections.\n"
-            "Return ONLY the validated JSON matching the ActivityCatalog schema."
+            "You are a travel destination researcher.\n"
+            "Given travel constraints, return a list of activities as a structured ActivityCatalog.\n"
+            "Generate 5-10 real activities per city based on your knowledge.\n"
+            "Each activity needs: id, city, name, type, estimated_duration_hours, crowd_level (low/medium/high), cost_band (free/low/medium/high), must_do (bool), rationale.\n"
+            "Do NOT use any tools. Do NOT call web_search. Just return the structured data."
         )
     )
-    
-    # Define mock tools for the agent in case it needs to search/query
-    @agent.tool_plain
-    def web_search(query: str) -> str:
-        """Search the web for information about attractions, things to do, and travel tips in a city."""
-        from backend.mcp_servers.search_server import get_mock_activity_catalog
-        import json
-        data = get_mock_activity_catalog(query)
-        return json.dumps(data)
-
-    @agent.tool_plain
-    def places_api(city: str, query: str) -> str:
-        """Query Places API for details of specific places or search terms in a city."""
-        from backend.mcp_servers.search_server import get_mock_activity_catalog
-        import json
-        data = get_mock_activity_catalog(city)
-        return json.dumps(data)
-
-    @agent.tool_plain
-    def reviews_scraper(place_id: str) -> str:
-        """Scrape user reviews and crowd levels for a specific place by its ID."""
-        return "Crowd level: medium. Overall rating: 4.7/5. Clean and historic."
 
 else:
     agent = None

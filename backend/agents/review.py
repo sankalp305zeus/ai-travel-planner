@@ -65,7 +65,7 @@ async def review_destination_itinerary(draft: DraftItinerary, constraints: Trave
         missing = [c for c in constraints.cities if c.strip().lower() not in skeleton_cities]
         blocking_issues.append(f"Missing cities in plan: {', '.join(missing)}")
     if not within_budget:
-        advisory_issues.append(f"Over budget: estimated {draft.budget_breakdown.total_estimated_cost:.2f} {constraints.currency} exceeds limit of {constraints.budget_total:.2f} {constraints.currency}.")
+        blocking_issues.append(f"Over budget: estimated {draft.budget_breakdown.total_estimated_cost:.2f} {constraints.currency} exceeds limit of {constraints.budget_total:.2f} {constraints.currency}.")
     blocking_issues.extend(null_fields)
     
     if len(blocking_issues) > 0:

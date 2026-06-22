@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 
 # Mock environment variables before importing app to prevent config ValueError
 os.environ["GEMINI_API_KEY"] = "mock_key"
+os.environ["GROQ_API_KEY"] = "mock_key"
 os.environ["LANGFUSE_PUBLIC_KEY"] = "mock_key"
 os.environ["LANGFUSE_SECRET_KEY"] = "mock_key"
 os.environ["OPENEXCHANGERATES_APP_ID"] = "mock_key"

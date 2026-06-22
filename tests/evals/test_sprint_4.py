@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 # Set mock env vars before importing anything
 os.environ["GEMINI_API_KEY"] = "mock_key"
+os.environ["GROQ_API_KEY"] = "mock_key"
 os.environ["LANGFUSE_PUBLIC_KEY"] = "mock_key"
 os.environ["LANGFUSE_SECRET_KEY"] = "mock_key"
 os.environ["OPENEXCHANGERATES_APP_ID"] = "mock_key"
