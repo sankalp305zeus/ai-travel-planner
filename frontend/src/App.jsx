@@ -152,7 +152,7 @@ function App() {
             <div className="flex-1">
               
               <div className="mb-10">
-                <div className="bg-surface backdrop-blur-2xl w-full h-[180px] rounded-[24px] border-t border-cyan/20 border-b border-border border-x border-border relative overflow-hidden flex items-center justify-between px-12 shadow-[0_0_40px_rgba(0,229,255,0.1)] transition-transform hover:scale-[1.01] duration-500">
+                <div className="bg-surface backdrop-blur-2xl w-full py-10 rounded-[24px] border-t border-cyan/20 border-b border-border border-x border-border relative overflow-hidden flex items-center justify-between px-12 shadow-[0_0_40px_rgba(0,229,255,0.1)] transition-transform hover:scale-[1.01] duration-500">
                   {/* Subtle gradient mesh overlay */}
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(0,229,255,0.15),_transparent_50%),radial-gradient(ellipse_at_bottom_right,_rgba(255,51,102,0.1),_transparent_50%)]"></div>
                   
@@ -164,8 +164,8 @@ function App() {
                   <div className="relative z-10 text-right">
                     <div className="text-[12px] uppercase tracking-wider text-muted font-body font-semibold mb-1">Total Budget</div>
                     <div className="text-[36px] font-body text-coral font-bold drop-shadow-[0_0_15px_rgba(255,51,102,0.3)]">
-                      {itinerary.budget_breakdown?.destination_currency_code === 'INR' ? '₹' : (itinerary.budget_breakdown?.destination_currency_code === 'USD' ? '$' : '')}
-                      {itinerary.budget_breakdown?.total_destination_currency || '---'}
+                      {itinerary?.constraints?.requested_currency === 'INR' ? '₹' : (itinerary?.constraints?.requested_currency === 'USD' ? '$' : '')}
+                      {itinerary?.constraints?.budget_total?.toLocaleString() || '---'}
                     </div>
                   </div>
                 </div>
@@ -221,10 +221,10 @@ function App() {
             
             <div className="w-[320px]">
               <div className="sticky top-32">
-                <div className="text-[12px] uppercase tracking-wider text-muted font-body font-semibold mb-2">Total Budget</div>
+                <div className="text-[12px] uppercase tracking-wider text-muted font-body font-semibold mb-2">Estimated Cost</div>
                 <div className="text-[36px] font-heading text-cyan font-bold mb-6">
-                  {itinerary.budget_breakdown?.destination_currency_code === 'INR' ? '₹' : (itinerary.budget_breakdown?.destination_currency_code === 'USD' ? '$' : '')}
-                  {itinerary.budget_breakdown?.total_destination_currency || '---'}
+                  {itinerary?.constraints?.requested_currency === 'INR' ? '₹' : (itinerary?.constraints?.requested_currency === 'USD' ? '$' : '')}
+                  {itinerary.budget_breakdown?.total_requested_currency?.toLocaleString() || '---'}
                 </div>
                 <div className="bg-surface backdrop-blur-md border border-border-strong rounded-[24px] p-6 shadow-glow-cyan/20">
                   {itinerary.budget_breakdown && (

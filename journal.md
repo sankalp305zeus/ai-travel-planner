@@ -301,3 +301,15 @@ Files changed: frontend/tailwind.config.js, frontend/src/index.css, frontend/src
 Error (if any): None.
 Next: User to verify via localhost:5173 before committing.
 ---
+
+## [2026-06-22T05:31:00+05:30] [BUG FIX] [ACTION]
+Status: Executed UI fixes and layout adjustments.
+1. Fixed Screen 2 flashing and blanking out by correcting a `ReferenceError` where `constraints` was being accessed without `itinerary?.` prefix in `App.jsx`.
+2. Made "Featured Routes" pills clickable in `TravelRequestForm.jsx`. Clicking them instantly fills the request textarea with detailed prompts. Added hover scale/cyan border effects.
+3. Repositioned the "Recently Generated" strip to `fixed bottom-4 z-50` to prevent layout overlap.
+4. Hid the side widgets (stats + featured routes) on viewports smaller than 1400px (`2xl`) to prevent horizontal breaking.
+Tested with `npm run build` locally—succeeded seamlessly.
+Files changed: frontend/src/App.jsx, frontend/src/components/TravelRequestForm.jsx
+Error (if any): None.
+Next: Sprint complete.
+---

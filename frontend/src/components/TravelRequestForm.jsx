@@ -86,7 +86,7 @@ const TravelRequestForm = ({ onSubmit }) => {
           className="w-[88px] h-[88px] mb-4 bg-gradient-to-br from-cyan to-coral rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(0,229,255,0.6),_0_0_80px_rgba(255,51,102,0.4)]"
           style={{ animation: 'float 4s ease-in-out infinite alternate' }}
         >
-          <span className="text-[42px]">🧭</span>
+          <img src="/navigo-logo.png" alt="Navigo" className="w-[48px] h-[48px] object-contain" />
         </div>
         
         <div className="font-heading font-extrabold text-[18px] bg-gradient-to-r from-cyan to-coral bg-clip-text text-transparent tracking-widest mb-3">
@@ -175,7 +175,7 @@ const TravelRequestForm = ({ onSubmit }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.8 }}
-        className="fixed bottom-4 w-full flex justify-center pointer-events-none z-50"
+        className="relative mt-12 mb-12 w-full max-w-3xl mx-auto flex justify-center z-20"
       >
         <div className="flex items-center gap-4 bg-surface backdrop-blur-2xl border border-cyan/10 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(0,0,0,0.5)] pointer-events-auto">
           <div className="flex items-center gap-2 text-muted text-[11px] font-body uppercase tracking-wider pr-4 border-r border-border">
