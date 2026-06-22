@@ -94,20 +94,23 @@ function App() {
       <div className="liquid-bg">
         <div className="liquid-blob-1"></div>
         <div className="liquid-blob-2"></div>
+        <div className="liquid-blob-3"></div>
       </div>
       
       {/* Global Branding */}
-      <div className="absolute top-6 left-8 z-50">
-        <div className="font-heading font-extrabold text-[24px] bg-gradient-to-r from-cyan to-coral bg-clip-text text-transparent tracking-tight">
-          NAVIGO
-        </div>
-        <div className="flex items-center gap-2 mt-[2px]">
-          <div className="w-6 h-px bg-cyan"></div>
-          <div className="font-body text-[11px] text-muted lowercase tracking-[0.15em]">
-            ai travel intelligence
+      {view !== 'request' && (
+        <div className="absolute top-6 left-8 z-50 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="font-heading font-extrabold text-[24px] bg-gradient-to-r from-cyan to-coral bg-clip-text text-transparent tracking-tight">
+            NAVIGO
+          </div>
+          <div className="flex items-center gap-2 mt-[2px]">
+            <div className="w-6 h-px bg-cyan"></div>
+            <div className="font-body text-[11px] text-muted lowercase tracking-[0.15em]">
+              ai travel intelligence
+            </div>
           </div>
         </div>
-      </div>
+      )}
       
       {view === 'request' && (
         <TravelRequestForm onSubmit={handleSubmit} />
@@ -116,15 +119,17 @@ function App() {
       {view === 'generating' && (
         <div className="flex w-full min-h-screen animate-in fade-in slide-in-from-bottom-2 duration-400">
           <div className="flex-1 flex flex-col items-center justify-center p-8">
-            <h2 className="text-[42px] font-heading font-extrabold bg-gradient-to-br from-white to-cyan bg-clip-text text-transparent mb-2">
+            <h2 className="text-[42px] font-heading font-extrabold bg-gradient-to-br from-white to-cyan bg-clip-text text-transparent mb-2 drop-shadow-lg">
               Crafting your journey...
             </h2>
-            <p className="text-[16px] text-muted font-body mb-12">
+            <p className="text-[16px] text-muted font-body mb-10">
               Five specialized agents are working in parallel
             </p>
-            <PipelineGraph agents={agentStatus} />
+            <div className="bg-surface backdrop-blur-2xl border-t border-cyan/20 border-b border-border border-x border-border rounded-[28px] p-[60px] shadow-[0_0_40px_rgba(0,229,255,0.1)] relative">
+               <PipelineGraph agents={agentStatus} />
+            </div>
           </div>
-          <div className="w-[340px] bg-surface backdrop-blur-md border-l border-border fixed right-0 h-full p-6 flex flex-col z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)]">
+          <div className="w-[340px] bg-surface backdrop-blur-2xl border-l border-cyan/20 fixed right-0 h-full p-6 flex flex-col z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center gap-3 mb-8">
               <h3 className="text-[18px] font-heading text-text font-bold">Live Updates</h3>
               <div className="w-2 h-2 rounded-full bg-cyan animate-pulse shadow-glow-cyan"></div>
@@ -143,15 +148,26 @@ function App() {
 
       {view === 'itinerary' && itinerary && (
         <div className="pb-24 animate-in fade-in slide-in-from-bottom-4 duration-400">
-          <div className="max-w-6xl mx-auto p-8 flex gap-10 pt-32">
+          <div className="max-w-[1200px] mx-auto p-8 flex gap-10 pt-32">
             <div className="flex-1">
+              
               <div className="mb-10">
-                <h1 className="text-[64px] font-heading font-extrabold bg-gradient-to-br from-white to-cyan bg-clip-text text-transparent leading-tight mb-2">
-                  {constraints?.duration_days || 5} Days in {constraints?.cities?.[0] || 'Destination'}
-                </h1>
-                <div className="text-[20px] font-body text-coral font-medium">
-                  {itinerary.budget_breakdown?.destination_currency_code === 'INR' ? '₹' : (itinerary.budget_breakdown?.destination_currency_code === 'USD' ? '$' : '')}
-                  {itinerary.budget_breakdown?.total_destination_currency || '---'} total budget
+                <div className="bg-surface backdrop-blur-2xl w-full h-[180px] rounded-[24px] border-t border-cyan/20 border-b border-border border-x border-border relative overflow-hidden flex items-center justify-between px-12 shadow-[0_0_40px_rgba(0,229,255,0.1)] transition-transform hover:scale-[1.01] duration-500">
+                  {/* Subtle gradient mesh overlay */}
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(0,229,255,0.15),_transparent_50%),radial-gradient(ellipse_at_bottom_right,_rgba(255,51,102,0.1),_transparent_50%)]"></div>
+                  
+                  <div className="relative z-10">
+                    <h1 className="text-[56px] font-heading font-extrabold bg-gradient-to-br from-white to-cyan bg-clip-text text-transparent leading-tight drop-shadow-lg">
+                      {itinerary?.constraints?.duration_days || 5} Days in {itinerary?.constraints?.cities?.[0] || 'Destination'}
+                    </h1>
+                  </div>
+                  <div className="relative z-10 text-right">
+                    <div className="text-[12px] uppercase tracking-wider text-muted font-body font-semibold mb-1">Total Budget</div>
+                    <div className="text-[36px] font-body text-coral font-bold drop-shadow-[0_0_15px_rgba(255,51,102,0.3)]">
+                      {itinerary.budget_breakdown?.destination_currency_code === 'INR' ? '₹' : (itinerary.budget_breakdown?.destination_currency_code === 'USD' ? '$' : '')}
+                      {itinerary.budget_breakdown?.total_destination_currency || '---'}
+                    </div>
+                  </div>
                 </div>
               </div>
               

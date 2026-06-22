@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         canvas: '#040914',
-        surface: 'rgba(14, 23, 41, 0.6)',
+        surface: 'rgba(14, 23, 41, 0.45)',
         'surface-solid': '#0E1729',
         border: 'rgba(0, 229, 255, 0.15)',
         'border-strong': 'rgba(0, 229, 255, 0.4)',
