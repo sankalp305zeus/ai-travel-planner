@@ -9,9 +9,9 @@ from backend import config
 # In standard environments, we initialize it using GroqModel
 # In mock/test environments, we skip real model instantiation to avoid validation or connection errors.
 if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
-    # Using 'llama-3.3-70b-versatile' as recommended
+    # Using 'llama-3.1-8b-instant' to save tokens and improve latency
     provider = GroqProvider(api_key=config.GROQ_API_KEY)
-    model = GroqModel('llama-3.3-70b-versatile', provider=provider)
+    model = GroqModel('llama-3.1-8b-instant', provider=provider)
     agent = Agent(
         model,
         output_type=TravelConstraints,
@@ -30,7 +30,8 @@ if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
             "  Set this detected currency to `requested_currency`. Also set `currency` to match for backwards compatibility.\n"
             "- Preferences: Extract user preferences (e.g. 'food', 'temples', 'museums').\n"
             "- Avoidances: Extract what the user wants to avoid (e.g. 'crowds', 'luxury hotels', 'cars').\n"
-            "Return ONLY the validated JSON matching the TravelConstraints schema."
+            "Return ONLY the validated JSON matching the TravelConstraints schema.\n"
+            "CRITICAL: You MUST use the `final_result` tool to output the extracted constraints. Do NOT invent your own tool names like `extract_travel_constraints`."
         )
     )
 else:

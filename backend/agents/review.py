@@ -9,7 +9,7 @@ from backend import config
 # Initialize Pydantic AI agent for Layer 2 qualitative checks
 if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
     provider = GroqProvider(api_key=config.GROQ_API_KEY)
-    model = GroqModel('llama-3.3-70b-versatile', provider=provider)
+    model = GroqModel('llama-3.1-8b-instant', provider=provider)
     agent = Agent(
         model,
         output_type=ReviewReport,
@@ -23,7 +23,8 @@ if config.GROQ_API_KEY and config.GROQ_API_KEY != "mock_key":
             "- blocking_issues: list of severe qualitative problems (e.g. logically impossible sequences).\n"
             "- advisory_issues: list of minor warnings.\n"
             "- repair_hints: list of actionable tips to fix failures.\n"
-            "Return ONLY the validated JSON matching the ReviewReport schema."
+            "Return ONLY the validated JSON matching the ReviewReport schema.\n"
+            "CRITICAL: You MUST use the `final_result` tool to output your response. Do NOT invent your own tool names."
         )
     )
 else:
