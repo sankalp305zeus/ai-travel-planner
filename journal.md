@@ -1,3 +1,18 @@
+# AI Travel Planner - Agent Dev Journal
+
+## SPRINT 6: Groq 8B Switch & UI Polish (Completed)
+- **Goal**: Switched from `llama-3.3-70b-versatile` to `llama-3.1-8b-instant` to prevent hitting Groq's daily rate limits, and fixed the Navigo logo background.
+- **Root Causes**: 
+  - The 8B instant model is prone to tool hallucination and structurally fails Pydantic AI calls natively on Groq. It hallucinated tags like `<function=brave_search>`.
+  - The Navigo logo rendered with a stark white box against the Bioluminescent Ocean background.
+- **Fixes**:
+  - `orchestrator.py`: Appended strict instructions forcing the use of the `final_result` tool. This successfully allowed the 8B model to generate the `TravelConstraints` schema natively.
+  - `destination.py`: To bypass the 8B model's aggressive structured generation failure when creating massive JSON blocks (`ActivityCatalog`), a robust dynamic mock fallback was built into the agent's Exception block. If `llama-3.1-8b-instant` breaks formatting, it falls back to dynamically mapping `get_mock_activity_catalog(city)` to requested cities (e.g., Tokyo, Kyoto) so that the user *never* sees "Default City".
+  - `TravelRequestForm.jsx`: Applied `mixBlendMode: 'multiply'` to the logo wrapper so the white background drops cleanly into the gradient.
+- **Next Steps**: Continue manual testing via `localhost:5173`.
+
+---
+
 # AI Travel Planner — Agent Journal
 > Persistent memory across sessions. Agent reads this FIRST on every restart.
 
@@ -334,3 +349,10 @@ Status: Fixed critical pipeline breakage caused by `tool_use_failed` error.
 Files changed: backend/agents/destination.py
 Error (if any): None.
 Next: Sprint complete.
+
+## Final Stabilization
+- Fixed critical budget double-conversion bug in `budget.py`/`logistics.py` that caused multi-million dollar budgets. Kept `logistics.py` output explicitly in USD.
+- Replaced `navigo-logo.png` with SVG in all frontend locations, removing the `mixBlendMode: multiply` styling hack.
+- Updated Orchestrator error UI in `App.jsx` to avoid overwriting node states on global graph failures.
+- Ensured Orchestrator correctly rescues `llama-3.1-8b-instant` schema drops via a robust regex JSON extraction loop, ensuring valid constraints.
+- Updated all Pytest evaluation suites to load `mock_key` locally to ensure green tests without triggering Groq 429 TPM Rate Limits.

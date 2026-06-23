@@ -72,10 +72,7 @@ function App() {
         }
         if (payload.status === 'error') {
           es.close();
-          setAgentStatus(prev => ({
-            ...prev,
-            Orchestrator: { state: 'error', artifact: 'Planning failed' }
-          }));
+          // Do not overwrite Orchestrator error if the error happened downstream
         }
       };
       

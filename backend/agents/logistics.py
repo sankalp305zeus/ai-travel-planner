@@ -42,7 +42,7 @@ async def plan_logistics(constraints: TravelConstraints, activities: List[Activi
             continue
         costs = get_city_costs(city)
         usd_cost = costs.get(tier_key, 100.0)
-        cost_per_night = usd_cost * rate
+        cost_per_night = usd_cost
         total_cost = cost_per_night * nights
         
         if tier_key == "hotel_mid":
@@ -73,7 +73,7 @@ async def plan_logistics(constraints: TravelConstraints, activities: List[Activi
         transit = get_transit_details(from_c, to_c)
         
         usd_cost = transit.get("estimated_cost_usd", 80.0)
-        estimated_cost = usd_cost * rate
+        estimated_cost = usd_cost
         total_movement_cost += estimated_cost
         
         movements.append(MovementItem(

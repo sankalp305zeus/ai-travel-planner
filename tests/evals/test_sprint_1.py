@@ -5,6 +5,8 @@ from backend.schemas import TravelConstraints, AgentResult
 # Ensure mock keys are set for testing config import
 os.environ["GEMINI_API_KEY"] = "mock_key"
 os.environ["GROQ_API_KEY"] = "mock_key"
+os.environ["Groq_API_KEY"] = "mock_key"
+os.environ["Groq_API_KEY"] = "mock_key"
 os.environ["LANGFUSE_PUBLIC_KEY"] = "mock_key"
 os.environ["LANGFUSE_SECRET_KEY"] = "mock_key"
 os.environ["OPENEXCHANGERATES_APP_ID"] = "mock_key"

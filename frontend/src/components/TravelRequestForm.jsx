@@ -86,8 +86,8 @@ const TravelRequestForm = ({ onSubmit }) => {
           className="w-[88px] h-[88px] mb-4 bg-gradient-to-br from-cyan to-coral rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(0,229,255,0.6),_0_0_80px_rgba(255,51,102,0.4)]"
           style={{ animation: 'float 4s ease-in-out infinite alternate' }}
         >
-          <div className="overflow-hidden rounded-2xl" style={{ mixBlendMode: 'multiply' }}>
-            <img src="/navigo-logo.png" alt="Navigo" className="w-[48px] h-[48px] object-contain" />
+          <div className="overflow-hidden rounded-2xl flex items-center justify-center">
+            <img src="/navigo-logo.svg" alt="Navigo" className="w-[48px] h-[48px] object-contain" />
           </div>
         </div>
         
